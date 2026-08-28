@@ -1,5 +1,6 @@
 # MetaX C550 operators and benchmarks
 
+This backend also contains independent comparison baselines for GLA, NSA, KDA, and SageAttention under per-operator ops/, tests/, and benchmarks/ directories.
 This backend contains the five C550 operator lines adapted in FlagAttention:
 
 - `flash_mla`

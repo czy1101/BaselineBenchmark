@@ -1,0 +1,4 @@
+33034e66a02be5c0cd93678f32ad0b75728c068db27204ea9948cf160e337919  ops/kda/native/chunk_kda_fwd.cu
+7462cd44a2a68583410b32bc830a11dfc9a5c39b630d165b16c9e272ef4da1e7  benchmarks/kda/benchmark.py
+ea545dcc0808e498722a5030c976fc52767f06846c293fc2597a51880ea1f568  benchmarks/kda/config.json
+07b7a50dd2671941fe3bbbf2fa797734b9cd3d5e493f762f814d7391f8295ef6  tests/kda/test_chunk_kda_fwd.py
