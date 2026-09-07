@@ -1,5 +1,18 @@
 # MetaX C550 operators and benchmarks
 
+## Validation and optimization experience
+
+See the [six-operator experience index](doc/README.md) for GDN2, SageAttention,
+MiniMax, KDA, GLA, and NSA: verified outcomes, failed attempts, evidence limits,
+and follow-up work. The [experiment workflow](workflow/README.md) provides a
+reusable record template and the 2026-09-07 evidence snapshot.
+
+These notes document FlagAttention integration runs as well as their relationship
+to this repository's independent baselines. They do not change operator/test
+sources or certify that every baseline suite below passes in one environment.
+The FlashMLA entries below are retained historical inventory; the three
+FlashMLA operators were removed from the current FlagAttention delivery scope.
+
 This backend also contains independent comparison baselines for GLA, NSA, KDA,
 and SageAttention under per-operator `ops/`, `test/`, and `benchmarks/`
 directories. All MetaX correctness sources are grouped under `test/`; see

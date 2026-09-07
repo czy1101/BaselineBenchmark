@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "record_id": "REPLACE_WITH_UNIQUE_ID",
+  "operator": "REPLACE_WITH_OPERATOR",
+  "stage": "correctness",
+  "decision": "pending",
+  "hypothesis": "一次实验只验证一个明确假设",
+  "source_revision": null,
+  "environment": {
+    "device": null,
+    "torch": null,
+    "triton_source": null,
+    "module_file": null
+  },
+  "scope": [],
+  "inputs_and_reference": null,
+  "cache_state": "not_recorded",
+  "measurement_method": null,
+  "acceptance_threshold_and_origin": null,
+  "observed_result": null,
+  "interpretation": "没有证据时不声明通过、失败根因或提速",
+  "evidence_ids": [],
+  "source_applied": false,
+  "published_commit": null,
+  "next_action": "补齐证据后再作决策"
+}
