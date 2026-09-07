@@ -1,6 +1,10 @@
 # MetaX C550 operators and benchmarks
 
-This backend also contains independent comparison baselines for GLA, NSA, KDA, and SageAttention under per-operator ops/, tests/, and benchmarks/ directories.
+This backend also contains independent comparison baselines for GLA, NSA, KDA,
+and SageAttention under per-operator `ops/`, `test/`, and `benchmarks/`
+directories. All MetaX correctness sources are grouped under `test/`; see
+[`test/README.md`](test/README.md) for the adapted suites and independent
+baseline environments.
 This backend contains the five C550 operator lines adapted in FlagAttention:
 
 - `flash_mla`
@@ -31,10 +35,12 @@ running the programs:
 export PYTHONPATH=/path/to/BaselineBenchmark:/path/to/FlagAttention/src
 ```
 
-Run the correctness suite before collecting performance data:
+Run the adapted-operator correctness suites before collecting their performance
+data (the glob selects the top-level files, not the independent baseline
+snapshots):
 
 ```bash
-pytest -q backends/_metax/test
+pytest -q backends/_metax/test/test_*.py
 ```
 
 Individual operator suites can also be selected directly:
@@ -46,6 +52,12 @@ pytest -q backends/_metax/test/test_flash_mla_sparse.py
 pytest -q backends/_metax/test/test_chunk_gdn2.py
 pytest -q backends/_metax/test/test_minimax_sparse_attention.py
 ```
+
+The independent baseline tests are under `test/gla/`, `test/nsa/`,
+`test/kda/`, and `test/sage_attention/`. Run each in its documented baseline
+environment; moving these sources into one directory does not combine their
+optional dependencies or turn the preserved upstream snapshots into a single
+standalone suite.
 
 After correctness passes, launch the benchmark programs from the repository
 root:
