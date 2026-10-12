@@ -117,6 +117,7 @@ def _direct_inputs(
     return q, k, v, q_scale, k_scale
 
 
+@pytest.mark.sage_attention
 @requires_gcu
 @pytest.mark.parametrize("tensor_layout", ["HND", "NHD"])
 @pytest.mark.parametrize("num_kv_heads", [1, 2])
@@ -152,6 +153,7 @@ def test_torch_gcu_matches_reference_with_tails_and_gqa(
     assert lse.numel() == 0
 
 
+@pytest.mark.sage_attention
 @requires_gcu
 @pytest.mark.parametrize("tensor_layout", ["HND", "NHD"])
 def test_torch_gcu_accepts_per_block_quantized_inputs(tensor_layout):
@@ -188,6 +190,7 @@ def test_torch_gcu_accepts_per_block_quantized_inputs(tensor_layout):
     )
 
 
+@pytest.mark.sage_attention
 @requires_gcu
 @requires_long_gcu_tests
 @pytest.mark.parametrize("batch_size,seq_len", _LONG_BATCH_SEQ_SHAPES)
@@ -234,6 +237,7 @@ def test_torch_gcu_matches_triton_on_long_benchmark_shapes(
     torch.testing.assert_close(actual, expected, atol=atol, rtol=rtol)
 
 
+@pytest.mark.sage_attention
 def test_auto_uses_triton_for_attention_mask(monkeypatch):
     sentinel = object()
 
@@ -256,6 +260,7 @@ def test_auto_uses_triton_for_attention_mask(monkeypatch):
     assert options["attn_mask"] is mask
 
 
+@pytest.mark.sage_attention
 def test_explicit_native_backend_rejects_attention_mask():
     q = torch.zeros((1, 1, 1, 64), dtype=torch.int8)
     mask = torch.ones((1, 1, 1, 1), dtype=torch.bool)
@@ -271,6 +276,7 @@ def test_explicit_native_backend_rejects_attention_mask():
         )
 
 
+@pytest.mark.sage_attention
 def test_auto_without_native_backend_resolves_to_triton(monkeypatch):
     unavailable = lambda: (None, "not installed")
     monkeypatch.setattr(native, "_load_torch_gcu_sdpa", unavailable)
@@ -279,6 +285,7 @@ def test_auto_without_native_backend_resolves_to_triton(monkeypatch):
     assert native.resolve_backend("auto", device="gcu") == "triton"
 
 
+@pytest.mark.sage_attention
 def test_torch_gcu_lse_is_explicitly_unsupported(monkeypatch):
     monkeypatch.setattr(native, "_load_torch_gcu_sdpa", lambda: (lambda: None, ""))
     q = torch.zeros((1, 1, 1, 64), dtype=torch.float16)

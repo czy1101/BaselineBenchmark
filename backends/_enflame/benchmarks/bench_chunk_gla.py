@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 
 
-PROJECT_SRC = Path(__file__).resolve().parents[4] / "src"
+PROJECT_SRC = Path(__file__).resolve().parents[4] / "FlagAttention" / "src"
 if str(PROJECT_SRC) not in sys.path:
     sys.path.insert(0, str(PROJECT_SRC))
 
@@ -20,17 +20,13 @@ except ModuleNotFoundError:
 
 import triton.language.math as tl_math
 
-# Compatibility aliases needed while importing unrelated FlagGems modules on
-# the Triton version bundled in the current Enflame image.
+# Compatibility aliases for the Triton version bundled in the Enflame image.
 tl_math.tanh = getattr(tl_math, "tanh", lambda x: x)
 tl_math.exp = getattr(tl_math, "exp", lambda x: x)
 tl_math.erf = getattr(tl_math, "erf", lambda x: x)
 tl_math.pow = getattr(tl_math, "pow", lambda x, y: x**y)
 
-import flaggems_vllm
-from flaggems_vllm.runtime.backend._enflame.ops.chunk_gla import (
-    chunk_gla as current_chunk_gla,
-)
+from flag_attn import chunk_gla as current_chunk_gla
 
 OPS_DIR = Path(__file__).resolve().parents[1] / "ops" / "chunk_gla"
 sys.path.insert(0, str(OPS_DIR))
@@ -68,7 +64,7 @@ def measure(function, warmup: int, repetitions: int) -> tuple[float, float, floa
     return statistics.median(samples), min(samples), max(samples)
 
 
-def main() -> None:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--warmup", type=int, default=2)
     parser.add_argument("--iter", type=int, default=10, dest="repetitions")
@@ -76,17 +72,21 @@ def main() -> None:
     parser.add_argument("--quick", action="store_true")
     parser.add_argument("--skip-current", action="store_true")
     parser.add_argument("--shape-index", type=int)
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+def main(args: argparse.Namespace | None = None) -> None:
+    if args is None:
+        args = parse_args()
     if args.shape_index is not None:
         shapes = [SHAPES[args.shape_index]]
     else:
         shapes = SHAPES[-2:] if args.quick else SHAPES
-    device = flaggems_vllm.device
+    device = torch.device("gcu")
     dtype = torch.bfloat16
 
     print(
-        f"device={device} vendor={flaggems_vllm.vendor_name} dtype={dtype} "
+        f"device={device} vendor=enflame dtype={dtype} "
         f"baseline=tops_cpp_topsaten "
         f"warmup={args.warmup} iter={args.repetitions} "
         f"chunk={args.chunk_size}"
@@ -138,6 +138,18 @@ def main() -> None:
                 f"{current_ms[0]:.3f} {baseline_ms[0]:.3f} "
                 f"{baseline_ms[0] / current_ms[0]:.2f}x"
             )
+
+
+def test_chunk_gla_benchmark(benchmark_options) -> None:
+    args = argparse.Namespace(
+        warmup=benchmark_options.get("warmup", 2),
+        repetitions=benchmark_options.get("iterations", 10),
+        chunk_size=benchmark_options.get("chunk_size", 256),
+        quick=benchmark_options.get("quick", False),
+        skip_current=benchmark_options.get("skip_current", False),
+        shape_index=benchmark_options.get("shape_index"),
+    )
+    main(args)
 
 
 if __name__ == "__main__":

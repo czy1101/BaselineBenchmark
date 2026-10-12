@@ -8,7 +8,7 @@ import pytest
 import torch
 
 
-PROJECT_SRC = Path(__file__).resolve().parents[4] / "src"
+PROJECT_SRC = Path(__file__).resolve().parents[4] / "FlagAttention" / "src"
 if str(PROJECT_SRC) not in sys.path:
     sys.path.insert(0, str(PROJECT_SRC))
 
@@ -24,8 +24,7 @@ tl_math.exp = getattr(tl_math, "exp", lambda x: x)
 tl_math.erf = getattr(tl_math, "erf", lambda x: x)
 tl_math.pow = getattr(tl_math, "pow", lambda x, y: x**y)
 
-import flaggems_vllm
-from flaggems_vllm.runtime.backend._enflame.ops.chunk_gla import chunk_gla
+from flag_attn import chunk_gla
 
 
 def _device() -> torch.device:

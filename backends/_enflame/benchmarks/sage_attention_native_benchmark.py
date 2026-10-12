@@ -23,9 +23,11 @@ existing Triton ``forward`` at its current API boundary.
 import argparse
 import math
 import os
+import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 import torch
 import triton
 
@@ -77,7 +79,7 @@ _TABLE_DTYPES = ("float16", "bfloat16")
 _LN2 = math.log(2.0)
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Benchmark the Enflame native SageAttention forward"
     )
@@ -105,6 +107,14 @@ def parse_args():
         help=(
             "Use the custom B/H/HKV/D/T/dtype arguments instead of the "
             "default 20-shape table"
+        ),
+    )
+    parser.add_argument(
+        "--isolate-shapes",
+        action="store_true",
+        help=(
+            "Run every shape in a fresh Python process to avoid allocator, "
+            "compiler-cache, and device-state interference between shapes"
         ),
     )
     parser.add_argument("--batch-size", type=int, default=1)
@@ -185,6 +195,63 @@ def _validate_args(args):
         raise ValueError("num-kv-heads must divide num-heads")
     if args.atol < 0 or args.rtol < 0:
         raise ValueError("atol and rtol must be non-negative")
+
+
+def _run_isolated_shapes(args):
+    script = str(Path(__file__).resolve())
+    configs = tuple(_configs(args))
+
+    for index, (
+        batch_size,
+        seq_len,
+        num_query_heads,
+        num_kv_heads,
+        head_dim,
+        dtype_name,
+    ) in enumerate(configs, start=1):
+        print(
+            f"# isolated shape {index}/{len(configs)}: "
+            f"B={batch_size}, T={seq_len}, HQ={num_query_heads}, "
+            f"HKV={num_kv_heads}, D={head_dim}, dtype={dtype_name}",
+            flush=True,
+        )
+        command = [
+            sys.executable,
+            script,
+            "--backend",
+            args.backend,
+            "--custom-shapes",
+            "--batch-size",
+            str(batch_size),
+            "--num-heads",
+            str(num_query_heads),
+            "--num-kv-heads",
+            str(num_kv_heads),
+            "--head-dim",
+            str(head_dim),
+            "--seq-lens",
+            str(seq_len),
+            "--dtype",
+            dtype_name,
+            "--warmup",
+            str(args.warmup),
+            "--rep",
+            str(args.rep),
+            "--atol",
+            str(args.atol),
+            "--rtol",
+            str(args.rtol),
+            "--seed",
+            str(args.seed),
+        ]
+        if args.allow_triton_fallback:
+            command.append("--allow-triton-fallback")
+        if args.compare_triton:
+            command.append("--compare-triton")
+        command.append(
+            "--check-reference" if args.check_reference else "--no-check-reference"
+        )
+        subprocess.run(command, check=True)
 
 
 def _make_inputs(batch_size, num_query_heads, num_kv_heads, seq_len, head_dim):
@@ -296,6 +363,10 @@ def _time(function, warmup, rep):
 
 def benchmark(args):
     _validate_args(args)
+    if args.isolate_shapes:
+        _run_isolated_shapes(args)
+        return
+
     torch.manual_seed(args.seed)
     selected_backend = resolve_backend(
         args.backend, return_lse=False, device="gcu"
@@ -414,6 +485,34 @@ def benchmark(args):
                 f"{num_kv_heads}\t{head_dim}\t{dtype_name}\t{triton_ms:.4f}\t"
                 f"{triton_tflops:.2f}\t{speedup_vs_torch:.3f}x\tPASS\t"
             )
+
+
+@pytest.mark.sage_attention
+def test_sage_attention_native_benchmark(benchmark_options) -> None:
+    args = argparse.Namespace(
+        backend=benchmark_options.get("backend", "auto"),
+        allow_triton_fallback=benchmark_options.get(
+            "allow_triton_fallback", False
+        ),
+        compare_triton=benchmark_options.get("compare_triton", False),
+        custom_shapes=benchmark_options.get("custom_shapes", False),
+        isolate_shapes=benchmark_options.get("isolate_shapes", False),
+        batch_size=benchmark_options.get("batch_size", 1),
+        num_heads=benchmark_options.get("num_heads", 32),
+        num_kv_heads=benchmark_options.get("num_kv_heads"),
+        head_dim=benchmark_options.get("head_dim", 128),
+        seq_lens=benchmark_options.get(
+            "seq_lens", (1024, 4096, 8192, 16384)
+        ),
+        dtype=benchmark_options.get("dtype", "float16"),
+        warmup=benchmark_options.get("warmup", 5),
+        rep=benchmark_options.get("rep", 20),
+        check_reference=benchmark_options.get("check_reference", True),
+        atol=benchmark_options.get("atol", 3e-2),
+        rtol=benchmark_options.get("rtol", 3e-2),
+        seed=benchmark_options.get("seed", 2026),
+    )
+    benchmark(args)
 
 
 if __name__ == "__main__":
