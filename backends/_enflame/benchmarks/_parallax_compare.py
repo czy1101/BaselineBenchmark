@@ -20,7 +20,6 @@ import pytest
 torch = pytest.importorskip("torch")
 pytest.importorskip("triton")
 _accelerator = pytest.importorskip("flag_attn.runtime.accelerator")
-_backend = pytest.importorskip("flag_attn.runtime.backend")
 
 from backends._enflame.benchmarks._parallax_timing import check_close, measure_pair, validate_timing
 
@@ -102,7 +101,7 @@ def _implementations(baseline, *, decode, accelerator):
     module_path = "FLA.parallax.decode" if decode else "FLA.parallax.parallel"
     try:
         base = import_module(f"backends._enflame.ops.parallax.{name}_torch")
-        current = _backend.load_backend_module(module_path, accelerator)
+        current = import_module(f"flag_attn.runtime.backend._enflame.{module_path}")
     except (ImportError, OSError) as exc:
         pytest.skip(f"Parallax implementation/dependency is unavailable: {exc}")
     available = base.torch_gcu_parallax_decode_available if decode else base.torch_gcu_parallax_available
