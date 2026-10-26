@@ -128,6 +128,7 @@ def _chunk_kda_reference(
     return torch.cat(output_parts, dim=1), torch.cat(final_state_parts, dim=0)
 
 
+@pytest.mark.chunk_kda
 @pytest.mark.parametrize("seq_lens", [[64], [29, 35, 17]])
 @pytest.mark.parametrize("use_initial_state", [False, True])
 @torch.inference_mode()

@@ -21,6 +21,7 @@ def measure(
     warmup: int,
     repeat: int,
     inner: int,
+    print_iterations: bool = True,
 ) -> tuple[list[float], Any]:
     if warmup < 0:
         raise ValueError("warmup must be non-negative")
@@ -54,6 +55,13 @@ def measure(
 
             samples.append(latency_ms)
 
+            if print_iterations:
+                print(
+                    f"ITERATION index={iteration} "
+                    f"inner={inner} "
+                    f"latency_ms={latency_ms:.6f}",
+                    flush=True,
+                )
             print(
                 f"ITERATION index={iteration} "
                 f"inner={inner} "

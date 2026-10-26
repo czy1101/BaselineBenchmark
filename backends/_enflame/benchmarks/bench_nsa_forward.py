@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import sys
 from pathlib import Path
 
@@ -12,6 +13,7 @@ if str(REPOSITORY_ROOT) not in sys.path:
 
 import torch
 import torch_gcu  # noqa: F401
+import pytest
 
 from backends._enflame.benchmarks._common import (
     measure,
@@ -85,6 +87,9 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def main(args: argparse.Namespace | None = None) -> None:
+    if args is None:
+        args = parse_args()
 def main() -> None:
     args = parse_args()
     torch.gcu.set_device(args.device)
@@ -179,6 +184,12 @@ def main() -> None:
             )
 
     else:
+        public = importlib.import_module(
+            "flag_attn.runtime"
+        )
+
+        def run():
+            return public.parallel_nsa(
         from flag_attn.runtime.backend._enflame import (
             parallel_nsa,
         )
@@ -255,6 +266,27 @@ def main() -> None:
     write_json(args.json_output, record)
 
     print("S60 NSA FORWARD BENCHMARK PASS")
+
+
+@pytest.mark.parallel_nsa
+def test_nsa_forward_benchmark(benchmark_options) -> None:
+    case = benchmark_options.get("case", required=True)
+    if case not in CASES:
+        raise pytest.UsageError(
+            f"--case must be one of {', '.join(CASES)} for NSA forward"
+        )
+    args = argparse.Namespace(
+        implementation=benchmark_options.get("implementation", required=True),
+        case=case,
+        dtype=benchmark_options.get("dtype", "bfloat16"),
+        device=benchmark_options.get("device", 0),
+        warmup=benchmark_options.get("warmup", 3),
+        repeat=benchmark_options.get("repeat", 9),
+        inner=benchmark_options.get("inner", 1),
+        max_batch_query=benchmark_options.get("max_batch_query", 512),
+        json_output=benchmark_options.get("json_output"),
+    )
+    main(args)
 
 
 if __name__ == "__main__":

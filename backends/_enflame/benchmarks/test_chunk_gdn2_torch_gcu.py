@@ -28,6 +28,7 @@ FLAG_ATTN_ROOT = next(
             / "runtime"
             / "backend"
             / "_enflame"
+            / "FLA"
             / "gdn2"
             / "__init__.py"
         ).is_file()
@@ -43,6 +44,7 @@ if FLAG_ATTN_ROOT is None:
             / "runtime"
             / "backend"
             / "_enflame"
+            / "FLA"
             / "gdn2"
         )
         for root in FLAG_ATTN_ROOTS
@@ -56,15 +58,27 @@ sys.path.insert(0, str(FLAG_ATTN_ROOT / "src"))
 OPS_DIR = Path(__file__).resolve().parents[1] / "ops"
 sys.path.insert(0, str(OPS_DIR))
 
-from flag_attn.runtime.backend._enflame.gdn2 import chunk_gdn2 as chunk_gdn2_triton
+from flag_attn.runtime.backend._enflame.FLA.gdn2 import (
+    chunk_gdn2 as chunk_gdn2_triton,
+)
 from gdn2 import chunk_gdn2_torch_gcu
 
 
 QUICK_CASES = ((1, 512, 8, 64, 64),)
 FULL_CASES = (
     (1, 512, 8, 64, 64),
+    (2, 512, 8, 64, 64),
+    (4, 1024, 8, 64, 64),
+    (1, 2048, 8, 64, 64),
     (1, 4096, 16, 64, 64),
     (1, 8192, 96, 128, 128),
+    (2, 2048, 16, 256, 512),
+    (2, 16384, 16, 128, 128),
+    (4, 1024, 8, 256, 512),
+    (4, 2048, 16, 128, 128),
+    (4, 4096, 64, 128, 128),
+    (8, 1024, 8, 64, 64),
+    (8, 2048, 32, 256, 256),
 )
 
 
@@ -99,7 +113,7 @@ def _error_ratio(actual: torch.Tensor, expected: torch.Tensor) -> float:
 
 def _triton_call(*args, **kwargs):
     module = importlib.import_module(
-        "flag_attn.runtime.backend._enflame.gdn2.chunk_gdn2"
+        "flag_attn.runtime.backend._enflame.FLA.gdn2.chunk_gdn2"
     )
     call_kwargs = dict(kwargs)
     if module.HAS_TLE_GDN2:
@@ -121,7 +135,7 @@ def test_chunk_gdn2_torch_gcu_vs_triton():
     cases = QUICK_CASES if quick else FULL_CASES
     device = torch.device("gcu")
     module = importlib.import_module(
-        "flag_attn.runtime.backend._enflame.gdn2.chunk_gdn2"
+        "flag_attn.runtime.backend._enflame.FLA.gdn2.chunk_gdn2"
     )
     triton_variant = "tle" if module.HAS_TLE_GDN2 else "native_triton"
 

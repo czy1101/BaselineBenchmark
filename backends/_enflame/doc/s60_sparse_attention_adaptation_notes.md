@@ -50,6 +50,53 @@ candidate extraction, and fused Score+TopK.
 The retained decode implementation includes the GCU-compatible flattened
 launch mapping and the validated direct Triton attention paths.
 
+### Decode score matrix orientation
+
+The largest D4 decode improvement came from changing the orientation of
+the index-score matrix multiplication. Before this change, the D4 stage
+breakdown was approximately:
+
+| Stage | Latency | Share |
+|---|---:|---:|
+| Index Score | 4.12 ms | 94%--96% |
+| Sparse Attention | 0.108 ms | 2.5% |
+| Other overhead | 0.1 ms | Remaining share |
+
+The bottleneck was therefore score generation rather than sparse
+attention or page ordering. The original decode score calculation used:
+
+```text
+K[128, D] x Q[D, HQ] -> Score[128, HQ]
+```
+
+Decode has a small `HQ`, so this formulation gives the matrix
+multiplication a very narrow output-N dimension. That shape has poor
+utilization of the S60 matrix-compute units.
+
+The optimized calculation reverses the multiplication orientation:
+
+```text
+Q[HQ, D] x K[D, 128] -> Score[HQ, 128]
+```
+
+It then performs the maximum reduction along the token dimension:
+
+```text
+block_score[q, block] = max_token(dot(q, k_token))
+```
+
+The new score matrix is the transpose of the original score matrix.
+Consequently, each query-key dot product and the subsequent maximum over
+the 128 tokens are unchanged; only the input and output layouts of the
+matrix multiplication differ.
+
+On D4, this change reduced the measured score-kernel latency from
+4.118884 ms to 0.056207 ms, a 73.3x speedup. It was the single largest
+contributor to the decode optimization. After the score kernel was
+accelerated, Torch-GCU `topk`, multi-operator Identity page generation,
+and merging intermediate attention results became the dominant fixed
+overheads.
+
 ## GCU300 TLE limitation
 
 The GCU300 compiler in the validated environment does not register or

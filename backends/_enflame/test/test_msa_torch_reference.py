@@ -77,6 +77,7 @@ def _dense_causal_reference(
     return output
 
 
+@pytest.mark.minimax_sparse_attention
 def test_torch_gcu_msa_prefill_matches_dense_causal() -> None:
     device = _gcu_device()
     torch.manual_seed(42)
@@ -165,6 +166,7 @@ def test_torch_gcu_msa_prefill_matches_dense_causal() -> None:
     )
 
 
+@pytest.mark.minimax_sparse_attention
 def test_torch_gcu_msa_decode_matches_dense_attention() -> None:
     device = _gcu_device()
     torch.manual_seed(43)

@@ -27,6 +27,7 @@ FLAG_ATTN_ROOT = next(
             / "runtime"
             / "backend"
             / "_enflame"
+            / "FLA"
             / "kda"
             / "__init__.py"
         ).is_file()
@@ -35,7 +36,16 @@ FLAG_ATTN_ROOT = next(
 )
 if FLAG_ATTN_ROOT is None:
     searched = ", ".join(
-        str(root / "src" / "flag_attn" / "runtime" / "backend" / "_enflame" / "kda")
+        str(
+            root
+            / "src"
+            / "flag_attn"
+            / "runtime"
+            / "backend"
+            / "_enflame"
+            / "FLA"
+            / "kda"
+        )
         for root in FLAG_ATTN_ROOTS
     )
     raise ImportError(
@@ -47,7 +57,7 @@ sys.path.insert(0, str(FLAG_ATTN_ROOT / "src"))
 OPS_DIR = Path(__file__).resolve().parents[1] / "ops"
 sys.path.insert(0, str(OPS_DIR))
 
-from flag_attn.runtime.backend._enflame.kda import chunk_kda as chunk_kda_triton
+from flag_attn.runtime.backend._enflame.FLA.kda import chunk_kda as chunk_kda_triton
 from kda import chunk_kda_torch_gcu
 
 

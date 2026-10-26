@@ -112,6 +112,7 @@ def _naive_nsa_reference(
     return output
 
 
+@pytest.mark.parallel_nsa
 def test_parallel_nsa_torch_baseline_matches_naive() -> None:
     device = _gcu_device()
     torch.manual_seed(42)

@@ -13,6 +13,7 @@ if str(REPOSITORY_ROOT) not in sys.path:
 
 import torch
 import torch_gcu  # noqa: F401
+import pytest
 
 from backends._enflame.benchmarks._common import (
     measure,
@@ -81,6 +82,9 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def main(args: argparse.Namespace | None = None) -> None:
+    if args is None:
+        args = parse_args()
 def main() -> None:
     args = parse_args()
     torch.gcu.set_device(args.device)
@@ -128,6 +132,8 @@ def main() -> None:
             return output
 
     else:
+        public = importlib.import_module(
+            "flag_attn.runtime"
         backend = importlib.import_module(
             "flag_attn.runtime.backend._enflame"
         )
@@ -140,6 +146,19 @@ def main() -> None:
         output = torch.empty_like(data.q)
 
         def run():
+            topk_idx = public.minimax_m3_index_score_topk(
+                data.idx_q,
+                data.index_kv_cache,
+                data.block_table,
+                data.cu_q,
+                data.seq_lens,
+                data.prefix_lens,
+                sequence_length,
+                data.max_seq_len,
+                num_kv_heads,
+                args.topk,
+                init_blocks,
+                local_blocks,
             topk_idx = (
                 public.minimax_m3_index_score_topk(
                     data.idx_q,
@@ -227,6 +246,26 @@ def main() -> None:
     write_json(args.json_output, record)
 
     print("S60 MSA PREFILL BENCHMARK PASS")
+
+
+@pytest.mark.minimax_sparse_attention
+def test_msa_prefill_benchmark(benchmark_options) -> None:
+    case = benchmark_options.get("case", required=True)
+    if case not in CASES:
+        raise pytest.UsageError(
+            f"--case must be one of {', '.join(CASES)} for MSA prefill"
+        )
+    args = argparse.Namespace(
+        implementation=benchmark_options.get("implementation", required=True),
+        case=case,
+        device=benchmark_options.get("device", 0),
+        warmup=benchmark_options.get("warmup", 20),
+        repeat=benchmark_options.get("repeat", 7),
+        inner=benchmark_options.get("inner", 50),
+        topk=benchmark_options.get("topk", 4),
+        json_output=benchmark_options.get("json_output"),
+    )
+    main(args)
 
 
 if __name__ == "__main__":
