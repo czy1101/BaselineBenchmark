@@ -1,0 +1,32 @@
+[
+  {
+    "batch": 1,
+    "sequence_length": 1024,
+    "heads": 2,
+    "head_dim": 128
+  },
+  {
+    "batch": 4,
+    "sequence_length": 1024,
+    "heads": 2,
+    "head_dim": 128
+  },
+  {
+    "batch": 1,
+    "sequence_length": 4096,
+    "heads": 2,
+    "head_dim": 128
+  },
+  {
+    "batch": 1,
+    "sequence_length": 8192,
+    "heads": 2,
+    "head_dim": 128
+  },
+  {
+    "batch": 1,
+    "sequence_length": 16384,
+    "heads": 2,
+    "head_dim": 128
+  }
+]

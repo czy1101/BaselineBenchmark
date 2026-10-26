@@ -1,0 +1,88 @@
+# MetaX C550 operators and benchmarks
+
+## Validation and optimization experience
+
+See the [six-operator experience index](doc/README.md) for GDN2, SageAttention,
+MiniMax, KDA, GLA, and NSA: verified outcomes, failed attempts, evidence limits,
+and follow-up work. The [experiment workflow](workflow/README.md) provides a
+reusable record template and the 2026-09-07 evidence snapshot.
+
+These notes document FlagAttention integration runs as well as their relationship
+to this repository's independent baselines. They do not change operator/test
+sources or certify that every baseline suite below passes in one environment.
+The FlashMLA entries below are retained historical inventory; the three
+FlashMLA operators were removed from the current FlagAttention delivery scope.
+
+This backend also contains independent comparison baselines for GLA, NSA, KDA,
+and SageAttention under per-operator `ops/`, `test/`, and `benchmarks/`
+directories. All MetaX correctness sources are grouped under `test/`; see
+[`test/README.md`](test/README.md) for the adapted suites and independent
+baseline environments.
+This backend contains the five C550 operator lines adapted in FlagAttention:
+
+- `flash_mla`
+- `flash_mla_with_kvcache`
+- `flash_mla_sparse_fwd`
+- `chunk_gdn2`
+- MiniMax M3 sparse attention (MSA)
+
+The adapted implementations are imported from `czy1101/FlagAttention:cyc`.
+Performance baselines live under `ops/`; correctness tests live under `test/`;
+executable performance programs live under `benchmarks/`. Generated
+logs and result files must remain
+untracked and should be written under the repository-level `results/`
+directory.
+
+## Environment
+
+- MetaX C550
+- PyTorch with MetaX support
+- FlagTree 3.6+ with TLE for the optimized TLE paths
+- `czy1101/FlagAttention:cyc` on `PYTHONPATH` for the shared GDN2 primitives
+- vLLM is optional and is used only as the MSA comparison baseline
+
+Set the repository root and FlagAttention source on `PYTHONPATH` before
+running the programs:
+
+```bash
+export PYTHONPATH=/path/to/BaselineBenchmark:/path/to/FlagAttention/src
+```
+
+Run the adapted-operator correctness suites before collecting their performance
+data (the glob selects the top-level files, not the independent baseline
+snapshots):
+
+```bash
+pytest -q backends/_metax/test/test_*.py
+```
+
+Individual operator suites can also be selected directly:
+
+```bash
+pytest -q backends/_metax/test/test_flash_mla.py
+pytest -q backends/_metax/test/test_flash_mla_with_kvcache.py
+pytest -q backends/_metax/test/test_flash_mla_sparse.py
+pytest -q backends/_metax/test/test_chunk_gdn2.py
+pytest -q backends/_metax/test/test_minimax_sparse_attention.py
+```
+
+The independent baseline tests are under `test/gla/`, `test/nsa/`,
+`test/kda/`, and `test/sage_attention/`. Run each in its documented baseline
+environment; moving these sources into one directory does not combine their
+optional dependencies or turn the preserved upstream snapshots into a single
+standalone suite.
+
+After correctness passes, launch the benchmark programs from the repository
+root:
+
+```bash
+python backends/_metax/benchmarks/flash_mla_benchmark.py
+python backends/_metax/benchmarks/flash_mla_with_kvcache_benchmark.py
+python backends/_metax/benchmarks/flash_mla_sparse_benchmark.py
+python backends/_metax/benchmarks/chunk_gdn2_benchmark.py
+python backends/_metax/benchmarks/minimax_sparse_attention_benchmark.py
+```
+
+The three FlashMLA programs report the adapted MetaX latency. The GDN2
+program compares the TLE path with its native Triton fallback. The MSA
+program compares the MetaX implementation with vLLM when vLLM is installed.

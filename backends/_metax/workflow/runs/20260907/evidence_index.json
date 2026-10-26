@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-09-07",
+  "archive_root": "/workspace/wangzibiao/flagattention_dev_metax_20260901",
+  "documentation_base": {
+    "repository": "czy1101/BaselineBenchmark",
+    "branch": "metax-wzb",
+    "commit": "7940d623c346650ca1f10c1de6fafea29d834615",
+    "tree": "59764d362560bf6e2e2ef8feb8d7df7c416bde75"
+  },
+  "runtime_context": {
+    "device": "MetaX C550",
+    "container_role": "WZB",
+    "torch": "2.8.0+metax3.7.2.0",
+    "triton": "3.6.0",
+    "scope": "Reported FlagAttention integration runs; not a universal baseline dependency specification"
+  },
+  "limitations": [
+    "GPU results are historical user-returned logs, not reruns by the documentation authoring machine.",
+    "Archive hashes are reported values; original container artifacts were not downloaded and rehashed during documentation.",
+    "Some logs lack a per-run source commit or skip-reason inventory; these are not reconstructed from assumptions.",
+    "No complete GLA/NSA/KDA correctness counts are available in this evidence set.",
+    "The corrected GDN2 cold-cache runner has no successful C550 full-suite result in this evidence set."
+  ],
+  "evidence": [
+    {
+      "id": "gdn2_full",
+      "kind": "user_returned_log",
+      "artifact": "runs/gdn2_output_full.TTSS3l/result.json",
+      "reported_sha256": "fbc0450dc34100babbef813f1bb031a5f76602f1eb27ec0f869cbd7dc5cd30a3",
+      "artifact_bytes_reverified": false,
+      "result": {"passed": 54, "benchmark_comparison_rows": 24, "benchmark_latency_measurements": 48, "performance_review_at_this_stage": "PENDING"},
+      "limits": ["Existing compiled cache reused; not a fully cold compilation measurement.", "Completion does not mean all TLE/native ratios exceed one or all performance review is closed."]
+    },
+    {
+      "id": "gdn2_paired",
+      "kind": "user_returned_log",
+      "artifact": "runs/gdn2_output_paired.DA0OeM/result.json",
+      "reported_sha256": "09c07249427319e30122008e38b43d61f23fe336965b8cfff0c2fa08e2c247d3",
+      "artifact_bytes_reverified": false,
+      "result": {
+        "shape": [2, 512, 8, 64, 64], "dtype": "bfloat16", "route": "Native",
+        "cycles": 12, "order": "alternating ABBA/BAAB",
+        "shared_median_ms": 0.24422399699687958, "private_median_ms": 0.24447999894618988,
+        "paired_change_median_percent": 0.052397573665818875,
+        "paired_change_min_percent": -0.1832099026685019,
+        "paired_change_max_percent": 1.0427829411451928,
+        "new_autotuning_searches": 0, "screen_percent": 5.0,
+        "screen_is_formal_acceptance_threshold": false
+      },
+      "limits": ["One shape/dtype/route; does not prove absence of regression in all workloads."]
+    },
+    {
+      "id": "gdn2_warm",
+      "kind": "user_returned_log",
+      "artifact": "runs/gdn2_warm_full_timing.yuukTD/result.json",
+      "reported_sha256": "6fbd5bf5203ac27078f839e0340571d97885d4cf4da05eca25ba4cf41f6352f8",
+      "artifact_bytes_reverified": false,
+      "result": {
+        "passed": 54, "coverage": "6 core + 48 extended", "cache": "existing",
+        "runtime_import_seconds": 22.063, "pytest_seconds": 4.640,
+        "test_call_seconds": 4.343, "child_process_seconds": 36.272, "script_wall_seconds": 36.414,
+        "private_distinct_keys": 17, "private_disk_hits": 17, "all_tuning_disk_hits": 156,
+        "new_autotuning_searches": 0, "new_candidate_trials": 0, "pure_compiler_time_measured": false
+      }
+    },
+    {
+      "id": "gdn2_cold_failed",
+      "kind": "user_returned_log",
+      "artifact": "runs/gdn2_cold_full54.1ml6x3no/result.json",
+      "artifact_bytes_reverified": false,
+      "result": {
+        "state": "GDN2_COLD_FULL_54_NEEDS_REVIEW", "correctness": null,
+        "failed_stage": "cache-directory probe before GPU tests",
+        "exception": "ValueError: non-hexadecimal number found in fromhex() arg at position 0",
+        "elapsed_to_failure_seconds": 0.109, "old_cache_untouched": true
+      },
+      "limits": ["0.109 s is failed setup time, not test or compilation time.", "Corrected cold GPU rerun pending."]
+    },
+    {
+      "id": "gdn2_apply",
+      "kind": "user_returned_log",
+      "artifact": "runs/gdn2_output_apply.UliFbc/result.json",
+      "reported_sha256": "3df51f7613e9d5707754a5ee6b501841f4bd5af837429e3d0ff224f7a778f34f",
+      "artifact_bytes_reverified": false,
+      "result": {"exact_candidate_applied": true, "curated_private_candidates": 7, "full_private_candidates": 108, "shared_generic_candidates": 108, "shared_metax_candidates": 36, "GPU_kernel_executed": false}
+    },
+    {
+      "id": "gdn2_commit",
+      "kind": "user_returned_log",
+      "artifact": "runs/gdn2_eof_local_commit.w1k3aB/result.json",
+      "reported_sha256": "5c34281cf83967bafdf6f0ca074fe450d24c6072122e1f20bfe0583a344dd2df",
+      "artifact_bytes_reverified": false,
+      "commit": "2238c36ed139bfb36bc0b09cffb62417e8af6cd9",
+      "result": {"files": 11, "full_tests_preserved": "6+48", "benchmark_shapes": 12, "worktree_clean": true},
+      "related_publication_artifact": "runs/api_publish_seven.t7NcIT/result.json"
+    },
+    {
+      "id": "gdn2_lint",
+      "kind": "user_returned_log",
+      "artifact": "runs/gdn2_e721_manifest_fix.h9nNJL/result.json",
+      "reported_sha256": "bb45c81902d04dbd078e6c08d5271e9ca05d67d2a0d1d539af94178a8b59d397",
+      "artifact_bytes_reverified": false,
+      "result": {"AST_identical": true, "CPU_type_cases_passed": 26, "ruff": "CLEAN", "global_lint_rules_modified": false, "GPU_tests": false}
+    },
+    {
+      "id": "gdn2_cold_script_cpu",
+      "kind": "local_static_check",
+      "artifact": null,
+      "result": {"test_methods_passed": 4, "fix": "Use hashlib.sha256(label).hexdigest() for cache-manager probe key", "GPU_tests": false},
+      "limits": ["Local helper tests are not FlagAttention operator tests or cold-cache speed measurements."]
+    },
+    {
+      "id": "sage_formal_equal",
+      "kind": "user_returned_log",
+      "artifact": "runs/sage_formal_merge_audit.Argp8S/result.json",
+      "reported_sha256": "92fac19083b2059f0b14afb8bf391d100b736b255080934fc85aea55641b5923",
+      "artifact_bytes_reverified": false,
+      "result": {"formal_files_equal": 5, "merge_performed": false},
+      "limits": ["This earlier audit covered existing formal Triton files, not EXP10A integration."]
+    },
+    {
+      "id": "sage_adapter",
+      "kind": "user_returned_log",
+      "artifact": "runs/sage_exp10a_validate.LUUt8a/result.json",
+      "reported_sha256": "e1b2f85e3ae07f53ca245176d82e4f48366e8718e96aa9761c0a12ef1e658670",
+      "artifact_bytes_reverified": false,
+      "result": {"passed": 23, "skipped": 0, "candidate_is_validation_adapter": true, "paired_shapes": 5, "geomean_speedup": 1.9116300760880431, "merge": false},
+      "limits": ["Prototype adapter evidence; superseded for production integration by sage_production."]
+    },
+    {
+      "id": "sage_package_failed",
+      "kind": "user_returned_log",
+      "artifact": "runs/sage_native_formal.5aZHXc/result.json",
+      "reported_sha256": "8d7b7417edf56498c8e6be0430eabefe7cd7effed656c139dc1a185530a7e82d",
+      "artifact_bytes_reverified": false,
+      "result": {"failed_stage": "package_contents", "exception": "PackageNotFoundError: setuptools-scm", "compile_started": false, "GPU_tests_started": false, "benchmark_started": false}
+    },
+    {
+      "id": "sage_production",
+      "kind": "user_returned_log",
+      "artifact": "runs/sage_native_formal.qx2SGd/resume_result.json",
+      "reported_sha256": "aab05c181199f2365bcb5244203f840ea1b0991c63cd73dc8d1e976cde7ba85d",
+      "artifact_bytes_reverified": false,
+      "result": {
+        "state": "SAGE_PRODUCTION_BUILD_TEST_PACKAGE_BENCHMARK_PASSED",
+        "passed": 42, "skipped": 0, "original_suite_cases": 8, "loader_CPU_cases": 18, "native_GPU_cases": 16,
+        "observed_native_calls": 13, "observed_triton_calls": 8,
+        "build_stage_seconds": 41.577, "wheel_and_sdist_contents": "PASS", "wheel_import_smoke": "PASS",
+        "official_benchmark_rows": 20, "paired_HND_shapes": 5, "geomean_speedup": 1.9127928102360936,
+        "stable_cv_under_1pct": true, "runtime_unchanged": true, "merge_at_this_stage": false
+      },
+      "limits": ["Route-call counts are not test counts.", "Speedup applies to the five validated FP16 HND shapes, not every fallback domain."]
+    },
+    {
+      "id": "sage_published",
+      "kind": "remote_git_verified",
+      "observed_on": "2026-09-07",
+      "repository": "czy1101/FlagAttention",
+      "branch": "dev-metax",
+      "commit": "52f7c6096bd6c433ee51d142e7526185fb9d4e25",
+      "parent": "2238c36ed139bfb36bc0b09cffb62417e8af6cd9",
+      "url": "https://github.com/czy1101/FlagAttention/commit/52f7c6096bd6c433ee51d142e7526185fb9d4e25",
+      "result": {"remote_ref_matches": true, "commit_page_reviewed": true, "files_changed": 9, "message": "perf(metax): integrate optional SageAttention native backend"},
+      "limits": ["Published source identity is not proof that any arbitrary environment has built or enabled the extension."]
+    },
+    {
+      "id": "minimax_correctness",
+      "kind": "user_returned_log",
+      "artifact": "runs/minimax_publication_full.ZAmPgk/junit.xml",
+      "artifact_bytes_reverified": false,
+      "result": {"collected": 27, "passed": 14, "skipped": 13, "failed": 0, "errors": 0, "warnings": 9, "pytest_seconds": 125.26},
+      "limits": ["Expected skips reported by gate; full per-case skip reasons not included in available receipt."]
+    },
+    {
+      "id": "minimax_benchmark",
+      "kind": "user_returned_log",
+      "artifact": "benchmark_final_20260904/runs/minimax_full.zBhr8j/results.json",
+      "reported_sha256": "37c50388ab3bc8c1f5f98a1bafa3bf631fca0751a971cc85ad162d00dc731d57",
+      "artifact_bytes_reverified": false,
+      "result": {"prefill_rows": 6, "decode_rows": 8, "dtype": "bf16", "provider": "flag_attn", "wall_seconds": 114, "benchmark_rc": 0, "audit_rc": 0},
+      "limits": ["vLLM unavailable; no comparative speedup or cross-container performance conclusion."]
+    },
+    {
+      "id": "minimax_commits",
+      "kind": "user_returned_log",
+      "artifact": null,
+      "commits": ["6c2daf45a1c70a4514f7b9e679189aefad265582", "9d4feb3b41ef1988215ea29614cad7926db1999b"],
+      "result": {"operator_fix": "Capability routing plus generic layout only for sync allocation", "benchmark_fix": "Platform delegation and four numeric axes"}
+    },
+    {
+      "id": "kda_benchmark",
+      "kind": "user_returned_log",
+      "artifact": "benchmark_final_20260904/runs/kda.zCULnc/results.json",
+      "artifact_bytes_reverified": false,
+      "result": {"shapes": 6, "robust_stable_shapes": 3, "targeted_review_shapes": 3, "benchmark_rc": 0, "overall_status": "COMPLETE_WITH_REVIEW_SHAPES", "wall_seconds": 140},
+      "limits": ["No complete correctness counts or independent baseline speedup in this evidence set."]
+    },
+    {
+      "id": "kda_wrapper_cleanup",
+      "kind": "user_returned_log",
+      "artifact": null,
+      "result": {"outer_gate_rc": 18, "tracked_changes": 0, "accidental_untracked_file": "9", "file_bytes": 0, "exact_file_removed": true, "worktree_clean_after": true, "benchmark_result_valid": true}
+    },
+    {
+      "id": "gla_benchmark",
+      "kind": "user_returned_log",
+      "artifact": "benchmark_final_20260904/gla.76zM9S/benchmark.log",
+      "reported_sha256": "03a5aa771df4703d320c7845714cbf24881141e6534713ffd9a5f724b436b648",
+      "artifact_bytes_reverified": false,
+      "result": {"dtype": "bfloat16", "shapes": 8, "directions": ["fwd", "bwd"], "rows": 16, "benchmark_rc": 0, "wall_seconds": 508},
+      "limits": ["No complete correctness counts or independent baseline speedup in this evidence set."]
+    },
+    {
+      "id": "gla_setup_failed",
+      "kind": "user_returned_log",
+      "artifact": null,
+      "result": {"failed_stage": "mktemp run-directory creation", "reason": "Parent directory absent", "benchmark_started": false}
+    },
+    {
+      "id": "nsa_benchmark",
+      "kind": "user_returned_log",
+      "artifact": "benchmark_final_20260904/nsa.uv6oYU/benchmark.log",
+      "reported_sha256": "e8b88e41afc31aa18133ac7b9907fa1b893b0f414cd334e95ecc225e08247fb7",
+      "artifact_bytes_reverified": false,
+      "result": {"operators": ["parallel_nsa", "parallel_nsa_compression"], "dtypes": ["float16", "bfloat16"], "shapes": 7, "rows": 28, "direction": "forward-only", "timer": "CUDA Event", "warmup": 10, "calls_per_sample": 5, "samples": 30, "wall_seconds": 479, "benchmark_rc": 0},
+      "limits": ["No backward, complete correctness counts, independent baseline speedup or specific failed kernel experiment in this evidence set."]
+    },
+    {
+      "id": "environment_incompatibility",
+      "kind": "user_returned_log",
+      "artifact": null,
+      "result": {"CYC_GDN2_error": "AttributeError: autotuning_knobs has no attribute adjust_block_size", "WZB_MiniMax_limitation": "Python TLE API presence does not guarantee required IR builder APIs", "container_shared_workspace": false},
+      "limits": ["Does not establish cross-container performance equivalence or universal compatibility."]
+    }
+  ]
+}

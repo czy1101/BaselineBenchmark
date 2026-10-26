@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-09-07",
+  "scope": "Historical six-operator experience; documentation only; no GPU reruns",
+  "records": [
+    {
+      "record_id": "gdn2_curated_cache", "operator": "GDN2", "stage": "integration", "decision": "accepted",
+      "hypothesis": "Reduce candidate searches and persist tuning choices while retaining full correctness/benchmark coverage.",
+      "source_revision": "2238c36ed139bfb36bc0b09cffb62417e8af6cd9",
+      "observed_result": "54 cases and 24 benchmark comparison rows validated; private output tuner isolated from shared GLA tuners.",
+      "interpretation": "Adopted for validated domains; full tuning path retained. Warm-cache speed is not cold compiler speed.",
+      "evidence_ids": ["gdn2_full", "gdn2_apply", "gdn2_warm", "gdn2_commit"],
+      "next_action": "Complete the corrected empty-cache experiment before quantifying cold-start improvement."
+    },
+    {
+      "record_id": "gdn2_three_case_tiers", "operator": "GDN2", "stage": "workflow", "decision": "rejected",
+      "hypothesis": "Use only three representative cases/shapes as default to reduce acceptance time.",
+      "observed_result": "Temporary tiers were removed; final default tests are 6+48 and benchmark has 12 shapes.",
+      "interpretation": "Coverage reduction was not the requested final solution to slow tuning.",
+      "evidence_ids": ["gdn2_commit"], "next_action": "Keep full default coverage."
+    },
+    {
+      "record_id": "gdn2_historical_regression_screen", "operator": "GDN2", "stage": "benchmark", "decision": "accepted",
+      "hypothesis": "Check whether the approximately 10.16 percent cross-run slowdown reproduces under paired cached measurements.",
+      "observed_result": "12 paired cycles: median change +0.0524 percent; no cycle above the 5 percent screen.",
+      "interpretation": "Historical signal not reproduced in this one workload. The screen is not a formal global acceptance threshold.",
+      "evidence_ids": ["gdn2_paired"], "next_action": "Use paired same-condition measurements for future suspected regressions."
+    },
+    {
+      "record_id": "gdn2_cold_probe", "operator": "GDN2", "stage": "workflow", "decision": "pending",
+      "hypothesis": "Measure the full 54-test run with a new empty cache.",
+      "observed_result": "Probe failed before GPU tests because get_cache_manager received a non-hex key. Helper CPU tests passed after a hex-digest fix.",
+      "interpretation": "No successful cold C550 measurement yet; failed setup time is not an operator timing.",
+      "evidence_ids": ["gdn2_cold_failed", "gdn2_cold_script_cpu"],
+      "next_action": "Run corrected probe and full suite with independently verified empty cache; preserve existing cache."
+    },
+    {
+      "record_id": "gdn2_exact_int_lint", "operator": "GDN2", "stage": "static", "decision": "accepted",
+      "hypothesis": "Retain exact builtin-int validation while resolving a lint diagnostic without changing semantics.",
+      "observed_result": "One documented E721 exception, identical AST, 26 CPU type cases passed; final EOF blank line removed before commit.",
+      "interpretation": "No global lint relaxation or GPU semantic change.",
+      "evidence_ids": ["gdn2_lint", "gdn2_commit"], "next_action": "Keep exact source binding when reusing prior validation."
+    },
+    {
+      "record_id": "sage_formal_vs_experiment", "operator": "SageAttention", "stage": "integration", "decision": "accepted",
+      "hypothesis": "Distinguish existing formal Triton files from the optional EXP10A native experiment.",
+      "observed_result": "Five formal files were already identical. Prototype validation separately passed 23 cases.",
+      "interpretation": "Neither file equality nor prototype PASS alone constitutes production integration acceptance.",
+      "evidence_ids": ["sage_formal_equal", "sage_adapter"], "next_action": "Use production and publication records for current release status."
+    },
+    {
+      "record_id": "sage_isolated_build_dependencies", "operator": "SageAttention", "stage": "build", "decision": "accepted",
+      "hypothesis": "Supply missing package build tools without replacing the validated runtime.",
+      "observed_result": "Initial setuptools-scm metadata failure preceded compilation; isolated offline build tools enabled successful package validation.",
+      "interpretation": "A packaging-environment failure, not evidence of a native math error.",
+      "evidence_ids": ["sage_package_failed", "sage_production"], "next_action": "Preserve runtime identity and verify wheel/sdist contents on future builds."
+    },
+    {
+      "record_id": "sage_optional_native", "operator": "SageAttention", "stage": "integration", "decision": "accepted",
+      "source_revision": "52f7c6096bd6c433ee51d142e7526185fb9d4e25",
+      "hypothesis": "Integrate native acceleration for an explicit validated domain while retaining Triton fallback.",
+      "observed_result": "42 passed, 0 skipped; package/import validation passed; five HND paired shapes geomean speedup 1.9128x; source published.",
+      "interpretation": "Scope-limited acceleration. Build, enablement and runtime validation remain environment-specific.",
+      "evidence_ids": ["sage_production", "sage_published"], "next_action": "Do not extend acceleration claims to untested layouts/dtypes/devices."
+    },
+    {
+      "record_id": "minimax_six_layout_overrides", "operator": "MiniMax", "stage": "integration", "decision": "rejected",
+      "hypothesis": "Resolve all TLE incompatibility by changing six allocation layouts.",
+      "observed_result": "Final accepted source instead checks required builder APIs and keeps only the sync-path layout override.",
+      "interpretation": "Allocation layout alone does not supply missing asynchronous memdesc/MMA capabilities.",
+      "evidence_ids": ["minimax_commits", "environment_incompatibility"], "next_action": "Retain capability-based dispatch."
+    },
+    {
+      "record_id": "minimax_supported_routes", "operator": "MiniMax", "stage": "correctness", "decision": "accepted",
+      "hypothesis": "Use available synchronous TLE capability without replacing the global runtime.",
+      "observed_result": "14 passed, 13 expected skips out of 27; 0 failures/errors.",
+      "interpretation": "Acceptance applies to executed cases; skipped domains remain unverified by this run.",
+      "evidence_ids": ["minimax_correctness", "minimax_commits"], "next_action": "Archive per-case skip reasons before claiming additional domains."
+    },
+    {
+      "record_id": "minimax_tuple_axis", "operator": "MiniMax", "stage": "benchmark", "decision": "rejected",
+      "hypothesis": "Wrap a four-element shape tuple as one x-axis argument.",
+      "observed_result": "Argument unpacking was corrected but matplotlib later rejected tuple-to-float conversion.",
+      "interpretation": "Intermediate driver fix was incomplete, not an operator correctness failure.",
+      "evidence_ids": ["minimax_commits"], "next_action": "Use four numeric axes with a matching benchmark signature."
+    },
+    {
+      "record_id": "minimax_benchmark_compatibility", "operator": "MiniMax", "stage": "benchmark", "decision": "accepted",
+      "hypothesis": "Preserve full platform API through the wrapper and expose valid numeric benchmark axes.",
+      "observed_result": "Two-route smoke and 6-prefill/8-decode BF16 benchmark completed.",
+      "interpretation": "Valid absolute measurements; no vLLM or cross-container speedup established.",
+      "evidence_ids": ["minimax_benchmark", "minimax_commits"], "next_action": "Profile prefill separately before optimization."
+    },
+    {
+      "record_id": "kda_stability_review", "operator": "KDA", "stage": "benchmark", "decision": "pending",
+      "hypothesis": "Establish stable absolute latency across six sequence lengths.",
+      "observed_result": "All six measured; T256/T1024/T2048 need targeted review, other three are ROBUST_STABLE.",
+      "interpretation": "Process success is not equivalent to every measurement meeting stability criteria.",
+      "evidence_ids": ["kda_benchmark"], "next_action": "Repeat only review shapes under controlled load, retaining samples and drift statistics."
+    },
+    {
+      "record_id": "kda_wrapper_integrity", "operator": "KDA", "stage": "workflow", "decision": "accepted",
+      "hypothesis": "Explain a failed outer gate without discarding valid benchmark output.",
+      "observed_result": "Only an accidental zero-byte untracked file named 9 was present; exact cleanup restored a clean tree.",
+      "interpretation": "Repository-integrity and benchmark-process results must be recorded separately.",
+      "evidence_ids": ["kda_wrapper_cleanup", "kda_benchmark"], "next_action": "Keep lock/file-descriptor redirection separate from data output."
+    },
+    {
+      "record_id": "gla_forward_backward_measurement", "operator": "GLA", "stage": "benchmark", "decision": "accepted",
+      "hypothesis": "Record BF16 forward and backward absolute latency for eight shapes.",
+      "observed_result": "Initial missing-parent mktemp failure was corrected; 16 benchmark rows completed.",
+      "interpretation": "Measurement success only; independent-baseline speedup and full correctness counts are not established here.",
+      "evidence_ids": ["gla_setup_failed", "gla_benchmark"], "next_action": "Preserve shared GLA tuning state when consumers add private tuners."
+    },
+    {
+      "record_id": "nsa_separate_components", "operator": "NSA", "stage": "benchmark", "decision": "accepted",
+      "hypothesis": "Measure sparse attention and compression separately for two dtypes and seven shapes.",
+      "observed_result": "28 forward-only rows completed using 30 CUDA Event samples per measurement.",
+      "interpretation": "No backward or end-to-end aggregate claim; no specific failed kernel experiment recorded.",
+      "evidence_ids": ["nsa_benchmark"], "next_action": "Add full correctness and independent-baseline evidence before broader acceptance claims."
+    },
+    {
+      "record_id": "runtime_identity_not_version_label", "operator": "cross_operator", "stage": "workflow", "decision": "accepted",
+      "hypothesis": "Equal Torch versions/device names are insufficient to establish compatible custom TLE runtimes.",
+      "observed_result": "CYC GDN2 autotuning knob missing; WZB MiniMax builder capability incomplete.",
+      "interpretation": "Audit actual module paths and capabilities; isolate fixes rather than globally swapping a working runtime.",
+      "evidence_ids": ["environment_incompatibility", "minimax_commits"], "next_action": "Record runtime identity and route evidence for each future change."
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "batch": 1,
+    "sequence_length": 1024,
+    "query_heads": 32,
+    "kv_heads": 2,
+    "head_dim": 128,
+    "block_size": 32,
+    "selected_blocks": 16,
+    "window": 128,
+    "dtype": "float16"
+  },
+  {
+    "batch": 1,
+    "sequence_length": 2048,
+    "query_heads": 32,
+    "kv_heads": 2,
+    "head_dim": 128,
+    "block_size": 32,
+    "selected_blocks": 16,
+    "window": 128,
+    "dtype": "float16"
+  },
+  {
+    "batch": 1,
+    "sequence_length": 4096,
+    "query_heads": 32,
+    "kv_heads": 2,
+    "head_dim": 128,
+    "block_size": 32,
+    "selected_blocks": 16,
+    "window": 128,
+    "dtype": "float16"
+  },
+  {
+    "batch": 1,
+    "sequence_length": 8192,
+    "query_heads": 32,
+    "kv_heads": 2,
+    "head_dim": 128,
+    "block_size": 32,
+    "selected_blocks": 16,
+    "window": 128,
+    "dtype": "float16"
+  },
+  {
+    "batch": 1,
+    "sequence_length": 16384,
+    "query_heads": 32,
+    "kv_heads": 2,
+    "head_dim": 128,
+    "block_size": 32,
+    "selected_blocks": 16,
+    "window": 128,
+    "dtype": "float16"
+  }
+]
