@@ -62,6 +62,12 @@ def measure(
                     f"latency_ms={latency_ms:.6f}",
                     flush=True,
                 )
+            print(
+                f"ITERATION index={iteration} "
+                f"inner={inner} "
+                f"latency_ms={latency_ms:.6f}",
+                flush=True,
+            )
 
     return samples, result
 

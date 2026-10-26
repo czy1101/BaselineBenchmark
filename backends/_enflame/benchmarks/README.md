@@ -9,6 +9,8 @@ This directory contains controlled same-card benchmarks for:
 - HPC block-sparse-attention FP8 dynamic prefill.
 
 The isolated benchmark modes measure exactly one implementation per process. Run the Torch
+
+Each process measures exactly one implementation. Run the Torch
 reference and adapted implementation in separate processes with the
 same arguments.
 

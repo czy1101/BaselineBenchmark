@@ -90,6 +90,8 @@ def parse_args() -> argparse.Namespace:
 def main(args: argparse.Namespace | None = None) -> None:
     if args is None:
         args = parse_args()
+def main() -> None:
+    args = parse_args()
     torch.gcu.set_device(args.device)
     torch.manual_seed(42)
 
@@ -188,6 +190,12 @@ def main(args: argparse.Namespace | None = None) -> None:
 
         def run():
             return public.parallel_nsa(
+        from flag_attn.runtime.backend._enflame import (
+            parallel_nsa,
+        )
+
+        def run():
+            return parallel_nsa(
                 q=q,
                 k=k,
                 v=v,

@@ -85,6 +85,8 @@ def parse_args() -> argparse.Namespace:
 def main(args: argparse.Namespace | None = None) -> None:
     if args is None:
         args = parse_args()
+def main() -> None:
+    args = parse_args()
     torch.gcu.set_device(args.device)
     torch.manual_seed(42)
 
@@ -132,6 +134,14 @@ def main(args: argparse.Namespace | None = None) -> None:
     else:
         public = importlib.import_module(
             "flag_attn.runtime"
+        backend = importlib.import_module(
+            "flag_attn.runtime.backend._enflame"
+        )
+        backend.install_msa_prefill(
+            use_tle=False
+        )
+        public = importlib.import_module(
+            "flag_attn.minimax_sparse_attention"
         )
         output = torch.empty_like(data.q)
 
@@ -149,6 +159,21 @@ def main(args: argparse.Namespace | None = None) -> None:
                 args.topk,
                 init_blocks,
                 local_blocks,
+            topk_idx = (
+                public.minimax_m3_index_score_topk(
+                    data.idx_q,
+                    data.index_kv_cache,
+                    data.block_table,
+                    data.cu_q,
+                    data.seq_lens,
+                    data.prefix_lens,
+                    sequence_length,
+                    data.max_seq_len,
+                    num_kv_heads,
+                    args.topk,
+                    init_blocks,
+                    local_blocks,
+                )
             )
             public.minimax_m3_sparse_attn(
                 data.q,
