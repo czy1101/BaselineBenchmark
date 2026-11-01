@@ -1,82 +1,34 @@
 # BaselineBenchmark
 
-Baseline and benchmark workspace for operator libraries running on different
-hardware backends.
+BaselineBenchmark collects reference implementations and operator benchmarks across hardware backends. Each backend owns its implementations, benchmark entry points, and validation notes; shared conventions and utilities live at the repository level.
 
-This repository is intentionally implementation-free at initialization. Each
-backend owns its operator implementations and benchmark entry points, while
-shared utilities and conventions live at the repository level.
+## Intended use
 
-## Directory layout
+These implementations are **experimental baselines for research and comparison**. They are not automatically official vendor implementations, production-ready operators, or drop-in replacements. Some combine code from several sources or use internal APIs. Check each operator's README for provenance, supported inputs, software versions, correctness limits, and fallback behavior.
 
-```text
-BaselineBenchmark/
-├── backends/
-│   ├── _template/
-│   │   ├── ops/           # Copy this layout when adding a backend
-│   │   └── benchmarks/
-│   ├── _aipu/
-│   │   ├── ops/
-│   │   └── benchmarks/
-│   ├── ...
-│   └── _nvidia/
-│       ├── ops/
-│       └── benchmarks/
-├── common/                # Shared benchmark helpers and result utilities
-├── configs/               # Shared case definitions and benchmark settings
-├── docs/                  # Benchmark conventions and design notes
-├── results/               # Local/generated results; only the directory is tracked
-└── scripts/               # Repository-level automation and orchestration
-```
+Interpret performance results together with their case definitions, device model, software environment, source revision, and measurement method. Identify fallback results separately. Performance measurement does not establish numerical correctness.
 
-The backend names mirror `src/flaggems_vllm/runtime/backend`. The leading
-underscore is retained so a backend can be mapped back to the runtime backend
-without ambiguity.
+## Repository layout
 
-## Adding a backend
+- `backends/`: backend-specific operators, benchmarks, and tests.
+- `common/`: shared benchmark and result utilities.
+- `configs/`: reusable case definitions and settings.
+- `docs/`: benchmark conventions and design notes.
+- `scripts/`: repository-level automation.
+- `results/`: generated measurements and associated metadata.
 
-1. Copy `backends/_template` to `backends/<backend_name>`.
-2. Put backend-specific implementations under `ops/`.
-3. Put executable benchmark programs under `benchmarks/`.
-4. Add or reuse case definitions in `configs/`.
-5. Record the command, environment, hardware, software versions, and result
-   location in the benchmark's documentation or result metadata.
+The repository contains implementations for multiple accelerator families. `_template` is a starting point for new backends, not a runnable implementation.
 
-For a backend with architecture-specific variants, use another level below
-the backend, for example `backends/_nvidia/ampere/ops/` and
-`backends/_nvidia/hopper/ops/`.
+## Evaluating a baseline
 
-## Benchmark conventions
+1. Distinguish upstream code from local adaptations and document all sources.
+2. State supported inputs, dependency versions, device model, and fallback paths.
+3. Validate correctness independently of timed execution.
+4. Record shapes, dtypes, layouts, warmup, repetitions, latency units, and source revisions.
+5. Compare compatible measurements and retain failures and regressions.
 
-Benchmarks should make correctness and performance independently verifiable:
+See [benchmark conventions](docs/benchmark_conventions.md) for general guidance. Operator-specific instructions belong with the corresponding backend.
 
-- keep input shapes, dtypes, layouts, and warmup/measurement counts explicit;
-- include a reference or baseline implementation when applicable;
-- separate correctness checks from timed regions;
-- report latency statistics and relevant throughput metrics with units;
-- save machine-readable results under `results/` rather than committing
-  generated output;
-- document device, driver, framework, compiler, and commit information.
+## Moore Threads MoBA example
 
-See [`docs/benchmark_conventions.md`](docs/benchmark_conventions.md) for the
-initial format guidance.
-
-## Running benchmarks
-
-There is no mandatory runner or dependency lockfile yet. Backend benchmarks
-may be run directly from their own directory while the common runner is being
-developed. A benchmark should document its command in its module-level help or
-an adjacent README.
-
-Typical usage after adding a benchmark is:
-
-```bash
-cd /path/to/BaselineBenchmark
-python backends/<backend_name>/benchmarks/<benchmark>.py --help
-```
-
-## Status
-
-The repository currently contains only the project skeleton. Backend owners
-can add implementations independently without changing the top-level layout.
-
+The [MoBA baseline](backends/_mthreads/ops/moba/README.md) combines project-specific routing with a kernel generated from MATE's FMHA template. It is **not an official Moore Threads MoBA implementation** and is kept for reference and performance comparison. The pure Triton operator in FlagAttention is a separate implementation.

@@ -1,55 +1,34 @@
 # BaselineBenchmark
 
-面向多种硬件后端的算子 baseline 与 benchmark 工作区。
+BaselineBenchmark 收集面向多种硬件后端的算子参考实现和可复核性能测试。各后端维护自己的实现、测试入口和验证说明；通用约定与工具由仓库共享。
 
-当前仓库只初始化项目结构和约定，不预置具体算子实现或 benchmark 逻辑。每个后端维护自己的算子实现和 benchmark 入口，跨后端复用的工具放在仓库公共目录中。
+## 项目定位
 
-## 目录结构
+本仓库的实现是**研究与性能对照用的实验 baseline**，不能仅因其位于本仓库，就视为厂商官方实现、生产就绪算子或被测算子的直接替代品。部分 baseline 组合多个来源的代码，或依赖内部接口。引用结果前，应核实各算子的来源、适用输入、软件版本、正确性边界和回退路径。
 
-```text
-BaselineBenchmark/
-├── backends/
-│   ├── _template/
-│   │   ├── ops/           # 新增后端时复制此模板
-│   │   └── benchmarks/
-│   ├── _aipu/
-│   │   ├── ops/
-│   │   └── benchmarks/
-│   ├── ...
-│   └── _nvidia/
-│       ├── ops/
-│       └── benchmarks/
-├── common/                # 跨后端复用的 benchmark 工具和结果工具
-├── configs/               # 共享的测试用例与 benchmark 配置
-├── docs/                  # benchmark 约定和设计说明
-├── results/               # 本地/生成的结果，只跟踪目录
-└── scripts/               # 仓库级自动化和调度脚本
-```
+性能数字必须与用例定义、设备型号、软件环境、源码版本及计时方法一起解读。baseline 在部分输入上可能回退到另一种实现，应单独标注。性能测试通过不等于数值正确性已验证。
 
-后端目录名称参考 `src/flaggems_vllm/runtime/backend`，保留前导下划线，便于与 runtime 中的后端一一对应。
+## 仓库结构
 
-## 新增后端
+- `backends/`：各后端的算子实现、性能测试与正确性测试。
+- `common/`：共享的性能测试和结果工具。
+- `configs/`：可复用的测试配置。
+- `docs/`：性能测试约定与设计说明。
+- `scripts/`：仓库级自动化脚本。
+- `results/`：生成的测量结果及其元数据。
 
-1. 将 `backends/_template` 复制为 `backends/<backend_name>`。
-2. 将后端专属算子实现放入 `ops/`。
-3. 将可执行 benchmark 脚本放入 `benchmarks/`。
-4. 在 `configs/` 中新增或复用测试用例配置。
-5. 在 benchmark 文档或结果元数据中记录命令、环境、硬件、软件版本和结果位置。
+仓库已包含多个后端的实现。`_template` 仅用于新增后端，不是可运行的算子实现。
 
-如果一个后端包含多个架构，可以继续增加一层目录，例如 `backends/_nvidia/ampere/ops/` 和 `backends/_nvidia/hopper/ops/`。
+## 评估 baseline
 
-## Benchmark 约定
+1. 区分上游代码与本地改造，记录所有来源。
+2. 说明支持的输入、依赖版本、设备型号及回退路径。
+3. 将正确性验证与计时分开执行。
+4. 记录 shape、dtype、layout、热身次数、测量次数、延迟单位和源码版本。
+5. 只比较条件兼容的结果，同时保留失败和性能回退记录。
 
-- 显式记录输入 shape、dtype、layout，以及 warmup 和测量次数；
-- 在适用时提供 reference 或 baseline 实现；
-- 将 correctness 检查与计时区间分开；
-- 报告带单位的延迟统计和相关吞吐指标；
-- 机器可读结果保存到 `results/`，不提交生成文件；
-- 记录设备、驱动、框架、编译器和代码版本信息。
+通用要求见[性能测试约定](docs/benchmark_conventions.md)；具体运行方式和限制由各后端文档说明。
 
-详细格式见 [`docs/benchmark_conventions.md`](docs/benchmark_conventions.md)。
+## 摩尔线程 MoBA 示例
 
-## 当前状态
-
-仓库当前仅包含项目骨架。后端可以独立添加实现，不需要改变顶层目录约定。
-
+[MoBA 实验基线](backends/_mthreads/ops/moba/README.md)结合项目自行实现的路由与基于 MATE FMHA 模板生成的内核，**不是摩尔线程官方发布的完整 MoBA 实现**，仅供参考和性能对照。FlagAttention 中开发的纯 Triton 算子是独立实现。
