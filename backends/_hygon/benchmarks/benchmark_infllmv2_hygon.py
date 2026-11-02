@@ -206,6 +206,9 @@ def run_case(case, args, peer):
         sampled_stage2_pass=True,
         all_results_finite=True,
     )
+    build_info = plan.lib.build_folder / "build.json"
+    if build_info.is_file():
+        result["native_build"] = json.loads(build_info.read_text())
     if peer:
         result["hip_over_flagattention"] = (
             stats["hip"]["median_ms"] / stats["flagattention"]["median_ms"]
@@ -271,6 +274,11 @@ def main():
     )
     if peer:
         report["flagattention_path"] = peer.__file__
+        report["flagattention_version"] = getattr(peer, "__version__", "unknown")
+        compiler = sys.modules.get("triton")
+        if compiler is not None:
+            report["peer_triton_version"] = compiler.__version__
+            report["peer_triton_path"] = compiler.__file__
     args.output.parent.mkdir(parents=True, exist_ok=True)
     for case in selected:
         report["cases"].append(run_case(case, args, peer))

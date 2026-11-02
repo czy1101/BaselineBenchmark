@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Native HIP correctness against independent Torch references, without Triton.
 
-Reference arithmetic is copied from FlagAttention commit
+Reference arithmetic is based on FlagAttention commit
 54417c6e9e4f85cdca248981ed18dc5b9fa5eb5d (Apache-2.0).
 """
 
@@ -370,7 +370,7 @@ def test_selection_stages(dtype):
     torch.testing.assert_close(k1, r1, atol=0.02, rtol=0.02)
     torch.testing.assert_close(k2, r2, atol=0.02, rtol=0.02)
     score = op.stage1(q, k1, k2, cq, c1, c2, 5, cu_seqlens_k=ck)
-    reference = stage1_ref(q, k1, k2, cq, c1, c2, 5, cu_seqlens_k=ck)
+    reference = stage1_ref(q, k1, k2, cq, c1, c2, cu_seqlens_k=ck)
     torch.testing.assert_close(score, reference, atol=0.04, rtol=0.04)
     pooled = op.pool_scores(
         score,
