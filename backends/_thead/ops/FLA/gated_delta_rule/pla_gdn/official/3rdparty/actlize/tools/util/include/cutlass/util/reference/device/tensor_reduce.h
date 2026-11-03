@@ -1,0 +1,544 @@
+/***************************************************************************************************
+ * Copyright (c) 2022-2026, T-HEAD (SHANGHAI) SEMICONDUCTOR CO., LTD. All rights reserved. 
+ * Copyright (c) 2017 - 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ *
+ * 3. Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ **************************************************************************************************/
+
+#pragma once
+
+#include <cmath>
+
+#include "cutlass/cutlass.h"
+#include "cutlass/complex.h"
+#include "cutlass/functional.h"
+#include "cutlass/numeric_conversion.h"
+#include "cutlass/tensor_view.h"
+#include "cutlass/util/device_memory.h"
+#include "cutlass/util/reference/detail/linear_to_coordinate.h"
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace cutlass {
+namespace reference {
+namespace device {
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace kernel {
+
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType,
+  typename ReduceOp,
+  typename TransformOp,
+  int kBlockSize = 128
+>
+__global__ void TensorTransformReducePartial(
+  TensorView<Element, Layout> view,     /// View of the tensor to reduce over
+  ComputeType identity,                 /// Identity element of the reduction operation
+  ReduceOp reduce,                      /// Reduces an accumulated value with a transformed element: f(ComputeType, ComputeType) => ComputeType
+  TransformOp transform,                /// Transforms the tensor element to ComputeType: g(Element) => ComputeType
+  ComputeType *workspace) {             /// Device-side workspace for accumulating partial results. The reduced element is stored in workspace[0]
+  
+  int64_t idx = threadIdx.x + blockIdx.x * blockDim.x;
+  int64_t size = view.size();
+
+  __shared__ ComputeType scratchpad[kBlockSize];
+
+  for (; idx < size; idx += blockDim.x * gridDim.x) {
+
+    // Map linear thread ID onto tensor coordinate
+    typename Layout::TensorCoord coord;
+
+    cutlass::reference::detail::LinearToCoordinate<Layout::kRank>()(coord, idx, view.extent());
+
+    if (view.contains(coord)) {
+
+      // Fetch element
+      Element x = view.at(coord);
+
+      // Transform 
+      identity = reduce(identity, transform(x));
+    }
+  }
+
+  scratchpad[threadIdx.x] = identity;
+
+  __syncthreads();
+
+  // One thread performs the final reduction and stores out. This could be enhanced via
+  // a tree reduction and pipelining.
+  if (threadIdx.x == 0) {
+
+    for (int i = 1; i < kBlockSize; ++i) {
+      identity = reduce(identity, scratchpad[i]);
+    }
+    
+    workspace[blockIdx.x] = identity;
+  }
+}
+
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType,
+  typename ReduceOp,
+  typename TransformOp,
+  int kBlockSize = 128
+>
+__global__ void TensorTransformReducePartial(
+  TensorView<Element, Layout> view_A,   /// View of the tensor to reduce over
+  TensorView<Element, Layout> view_B,   /// View of the tensor to reduce over
+  ComputeType identity,                 /// Identity element of the reduction operation
+  ReduceOp reduce,                      /// Reduces an accumulated value with a transformed element: f(ComputeType, ComputeType) => ComputeType
+  TransformOp transform,                /// Transforms the tensor element to ComputeType: g(Element) => ComputeType
+  ComputeType *workspace) {             /// Device-side workspace for accumulating partial results. The reduced element is stored in workspace[0]
+  
+  int64_t idx = threadIdx.x + blockIdx.x * blockDim.x;
+  auto size = static_cast<int64_t>(view_A.size());
+
+  __shared__ ComputeType scratchpad[kBlockSize];
+
+  // Hoist base pointers and layout/extent out of the per-iteration body.
+  // Some device backends generate poor register allocation when the
+  // multi-iteration loop repeatedly evaluates view_A.at()/view_B.at()
+  // through the by-value TensorView arguments, leading to the second
+  // base-pointer being clobbered between iterations.
+  //
+  // Also mark both base pointers as __restrict__. Without it the PPU
+  // clang 13.0.1 backend fails to keep ptr_B's base scalar register
+  // (sreg pair) live across the fp16 double-tensor reduction path:
+  // it speculatively folds ptr_B's load into ptr_A's address-gen,
+  // then when the per-element load issues against the wrong base the
+  // vmem.ld.b16 trips a 'global mem out of range' inside
+  // cutlass::half_t::convert during the transform(a,b) call. The
+  // single-tensor and the fp32 double-tensor paths happen to avoid
+  // the same alias-folding because of their wider element-size code
+  // sequence. Adding __restrict__ tells the backend the two streams
+  // never overlap, which is true for every call site of this kernel.
+  Element const* __restrict__ ptr_A = view_A.data();
+  Element const* __restrict__ ptr_B = view_B.data();
+  Layout layout_A = view_A.layout();
+  auto extent_A = view_A.extent();
+
+  for (; idx < size; idx += blockDim.x * gridDim.x) {
+
+    // Map linear thread ID onto tensor coordinate
+    typename Layout::TensorCoord coord;
+
+    cutlass::reference::detail::LinearToCoordinate<Layout::kRank>()(coord, idx, extent_A);
+
+    bool inside = true;
+    CUTLASS_PRAGMA_UNROLL
+    for (int r = 0; r < Layout::TensorCoord::kRank; ++r) {
+      if (coord[r] < 0 || coord[r] >= extent_A[r]) {
+        inside = false;
+      }
+    }
+
+    if (inside) {
+
+      int64_t off = layout_A(coord);
+
+      // Fetch element
+      Element a = ptr_A[off];
+      Element b = ptr_B[off];
+
+      // Transform
+      identity = reduce(identity, transform(a, b));
+    }
+  }
+
+  scratchpad[threadIdx.x] = identity;
+
+  __syncthreads();
+
+  // One thread performs the final reduction and stores out. This could be enhanced via
+  // a tree reduction and pipelining.
+  if (threadIdx.x == 0) {
+
+    for (int i = 1; i < kBlockSize; ++i) {
+      identity = reduce(identity, scratchpad[i]);
+    }
+
+    workspace[blockIdx.x] = identity;
+  }
+}
+
+
+template <
+  typename ComputeType,
+  typename ReduceOp,
+  int kBlockSize = 32
+>
+__global__ void TensorTransformReduceFinalize(
+  ComputeType *workspace, 
+  ComputeType identity,
+  int workspace_size,
+  ReduceOp reduce) {
+
+  __shared__ ComputeType scratchpad[kBlockSize];
+
+  for (int idx = threadIdx.x; idx < workspace_size; idx += kBlockSize) {
+    identity = reduce(identity, workspace[idx]);
+  }
+
+  scratchpad[threadIdx.x] = identity;
+
+  __syncthreads();
+
+  if (threadIdx.x == 0) {
+
+    for (int i = 1; i < kBlockSize; ++i) {
+      identity = reduce(identity, scratchpad[i]);
+    }
+
+    workspace[0] = identity;
+  }
+}
+
+} // namespace kernel
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Transform-reduce operation over the elements of a tensor
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType,
+  typename ReduceOp,
+  typename TransformOp
+>
+ComputeType TensorTransformReduce(
+  TensorView<Element, Layout> view,     /// View of the tensor to reduce over
+  ComputeType identity,                 /// Identity element of the reduction operation
+  ReduceOp reduce,                      /// Reduces an accumulated value with a transformed element: f(ComputeType, ComputeType) => ComputeType
+  TransformOp transform,                /// Transforms the tensor element to ComputeType: g(Element) => ComputeType
+  ComputeType *workspace,               /// Device-side workspace for accumulating partial results. The reduced element is stored in workspace[0]
+  int workspace_size,                   /// Number of elements in workspace
+  hggcStream_t stream = nullptr,        /// device stream to launch into
+  bool copy_out = true                  /// If true, the value of workspace[0] is copied to host and returned. Otherwise, `identity` is returned.
+) {
+
+  int const kBlockSize = 128;
+
+  dim3 block(kBlockSize, 1);
+  dim3 grid(workspace_size, 1);
+
+  kernel::TensorTransformReducePartial<
+    Element, Layout, ComputeType, ReduceOp, TransformOp, kBlockSize
+  ><<< grid, block, 0, stream >>>(
+    view, identity, reduce, transform, workspace
+  );
+
+  int const kFinalizeBlockSize = 32;
+
+  kernel::TensorTransformReduceFinalize<
+    ComputeType, ReduceOp, kFinalizeBlockSize
+  ><<< dim3(1, 1), dim3(kFinalizeBlockSize, 1), 0, stream >>>(
+    workspace, identity, workspace_size, reduce
+  );
+
+  if (copy_out) {
+    hggcError_t result = hggcMemcpy(&identity, workspace, sizeof(identity), hggcMemcpyDeviceToHost);
+    if (result != hggcSuccess) {
+      throw std::runtime_error("hggcMemcpy() failed");
+    }
+  }
+
+  return identity;
+}
+
+/// Transform-reduce operation over the elements of two tensors, zipped together
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType,
+  typename ReduceOp,
+  typename TransformOp
+>
+ComputeType TensorTransformReduce(
+  TensorView<Element, Layout> view_A,   /// View of the tensor to reduce over
+  TensorView<Element, Layout> view_B,   /// View of the tensor to reduce over
+  ComputeType identity,                 /// Identity element of the reduction operation
+  ReduceOp reduce,                      /// Reduces an accumulated value with a transformed element: f(ComputeType, ComputeType) => ComputeType
+  TransformOp transform,                /// Transforms the tensor element to ComputeType: g(Element) => ComputeType
+  ComputeType *workspace,               /// Device-side workspace for accumulating partial results. The reduced element is stored in workspace[0]
+  int workspace_size,                   /// Number of elements in workspace
+  hggcStream_t stream = nullptr,        /// device stream to launch into
+  bool copy_out = true                  /// If true, the value of workspace[0] is copied to host and returned. Otherwise, `identity` is returned.
+) {
+
+  if (view_A.extent() != view_B.extent()) {
+    throw std::runtime_error("Extents must be equal.");
+  }
+
+  int const kBlockSize = 128;
+
+  dim3 block(kBlockSize, 1);
+  dim3 grid(workspace_size, 1);
+
+  kernel::TensorTransformReducePartial<
+    Element, Layout, ComputeType, ReduceOp, TransformOp, kBlockSize
+  ><<< grid, block, 0, stream >>>(
+    view_A, view_B, identity, reduce, transform, workspace
+  );
+
+  int const kFinalizeBlockSize = 32;
+
+  kernel::TensorTransformReduceFinalize<
+    ComputeType, ReduceOp, kFinalizeBlockSize
+  ><<< dim3(1, 1), dim3(kFinalizeBlockSize, 1), 0, stream >>>(
+    workspace, identity, workspace_size, reduce
+  );
+
+  if (copy_out) {
+    hggcError_t result = hggcMemcpy(&identity, workspace, sizeof(identity), hggcMemcpyDeviceToHost);
+    if (result != hggcSuccess) {
+      throw std::runtime_error("hggcMemcpy() failed");
+    }
+  }
+
+  return identity;
+}
+
+/// Transform-reduce operation over the elements of a tensor. This helper allocates the device-side
+/// workspace
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType,
+  typename ReduceOp,
+  typename TransformOp
+>
+ComputeType TensorTransformReduce(
+  TensorView<Element, Layout> view,
+  ComputeType identity,            
+  ReduceOp reduce,                 
+  TransformOp transform,
+  hggcStream_t stream = nullptr, 
+  int workspace_size = 0           
+) {
+
+  // Optionally query for the CU count to size the workspace.
+  if (!workspace_size) {
+
+    int device_idx = 0;
+    hggcDeviceProp prop;
+
+    hggcError_t result = hggcGetDevice(&device_idx);
+    if (result != hggcSuccess) {
+      throw std::runtime_error("hggcGetDevice() failed");
+    }
+
+    result = hggcGetDeviceProperties(&prop, device_idx);
+    if (result != hggcSuccess) {
+      throw std::runtime_error("hggcGetDeviceProp() failed");
+    }
+
+    workspace_size = int(prop.multiProcessorCount);
+  }
+
+  DeviceAllocation<ComputeType> workspace(workspace_size);
+
+  ComputeType output = TensorTransformReduce(
+    view, 
+    identity, 
+    reduce, 
+    transform, 
+    workspace.get(), 
+    workspace_size, 
+    stream, 
+    true);
+
+  return output;
+}
+
+
+/// Transform-reduce operation over the elements of a tensor. This helper allocates the device-side
+/// workspace
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType,
+  typename ReduceOp,
+  typename TransformOp
+>
+ComputeType TensorTransformReduce(
+  TensorView<Element, Layout> view_A,
+  TensorView<Element, Layout> view_B,
+  ComputeType identity,            
+  ReduceOp reduce,                 
+  TransformOp transform,
+  hggcStream_t stream = nullptr, 
+  int workspace_size = 0           
+) {
+
+  // Optionally query for the CU count to size the workspace.
+  if (!workspace_size) {
+
+    int device_idx = 0;
+    hggcDeviceProp prop;
+
+    hggcError_t result = hggcGetDevice(&device_idx);
+    if (result != hggcSuccess) {
+      throw std::runtime_error("hggcGetDevice() failed");
+    }
+
+    result = hggcGetDeviceProperties(&prop, device_idx);
+    if (result != hggcSuccess) {
+      throw std::runtime_error("hggcGetDeviceProp() failed");
+    }
+
+    workspace_size = int(prop.multiProcessorCount);
+  }
+
+  DeviceAllocation<ComputeType> workspace(workspace_size);
+
+  ComputeType output = TensorTransformReduce(
+    view_A,
+    view_B, 
+    identity, 
+    reduce, 
+    transform, 
+    workspace.get(), 
+    workspace_size, 
+    stream, 
+    true);
+
+  return output;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Helper to compute the sum of the elements of a tensor
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType = Element
+>
+ComputeType TensorSum(
+  TensorView<Element, Layout> view,
+  ComputeType identity = ComputeType(),
+  hggcStream_t stream = nullptr,
+  int workspace_size = 0
+) {
+
+  plus<ComputeType> reduce;
+  NumericConverter<ComputeType, Element> transform;
+
+  return TensorTransformReduce(
+    view, identity, reduce, transform, stream, workspace_size);
+}
+
+/// Helper to compute the sum of the squares of the elements of a tensor
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType = Element
+>
+ComputeType TensorSumSq(
+  TensorView<Element, Layout> view,
+  ComputeType identity = ComputeType(),
+  hggcStream_t stream = nullptr,
+  int workspace_size = 0
+) {
+
+  plus<ComputeType> reduce;
+  magnitude_squared<Element, ComputeType> transform;
+
+  return TensorTransformReduce(
+    view, identity, reduce, transform, stream, workspace_size);
+}
+
+/// Helper to compute the norm of the elements of a tensor.
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType = double
+>
+ComputeType TensorNorm(
+  TensorView<Element, Layout> view,
+  ComputeType identity = ComputeType(),
+  hggcStream_t stream = nullptr,
+  int workspace_size = 0
+) {
+
+  return std::sqrt(TensorSumSq(view, identity, stream, workspace_size));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Helper to compute the sum of the squares of the differences of two tensors
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType = double
+>
+ComputeType TensorSumSqDiff(
+  TensorView<Element, Layout> view_A,
+  TensorView<Element, Layout> view_B,
+  ComputeType identity = ComputeType(),
+  hggcStream_t stream = nullptr,
+  int workspace_size = 0
+) {
+
+  plus<ComputeType> reduce;
+  magnitude_squared_difference<Element, ComputeType> transform;
+
+  return TensorTransformReduce(
+    view_A, view_B, identity, reduce, transform, stream, workspace_size);
+}
+
+
+/// Helper to compute the norm of the tensor computed as the difference of two tensors in memory
+template <
+  typename Element,
+  typename Layout,
+  typename ComputeType = double
+>
+ComputeType TensorNormDiff(
+  TensorView<Element, Layout> view_A,
+  TensorView<Element, Layout> view_B,
+  ComputeType identity = ComputeType(),
+  hggcStream_t stream = nullptr,
+  int workspace_size = 0
+) {
+
+  return std::sqrt(TensorSumSqDiff(view_A, view_B, identity, stream, workspace_size));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+} // namespace device
+} // namespace reference
+} // namespace cutlass
+
+/////////////////////////////////////////////////////////////////////////////////////////////////

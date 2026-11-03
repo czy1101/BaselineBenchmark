@@ -1,0 +1,180 @@
+running build_ext
+[1/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_0_0.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_0_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_0_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[2/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_0_1.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_0_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_0_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[3/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_1_0.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_1_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_1_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[4/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_1_1.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_1_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_128_4_4_1_1_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[5/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_0_0.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_0_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_0_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[6/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_0_1.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_0_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_0_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[7/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_1_0.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_1_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_1_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[8/17] CXX /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/host.cpp
+[9/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_1_1.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_1_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_4_4_1_1_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[10/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_0_0.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_0_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_0_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[11/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_0_1.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_0_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_0_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[12/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_1_0.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_1_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_1_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[13/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_1_1.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_1_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_32_8_4_1_1_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[14/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_0_0.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_0_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_0_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[15/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_0_1.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_0_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_0_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[16/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_1_0.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_1_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_1_0.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[17/17] HGCC /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_1_1.cu
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_1_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu001.
+In file included from /workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/launch_64_8_4_1_1_1.cu:1:
+/workspace/FlagAttention/BaselineBenchmark/backends/_thead/ops/FLA/gated_delta_rule/pla_gdn/precomputed/recurrent/kernel.cuh:407:13: warning: expected a for, while, or do-while loop to follow '#pragma unroll' [-Wignored-pragmas]
+            if (warp_id < HV_PER_CTA) {
+            ^
+1 warning generated when compiling for ppu0015.
+[pla] SDK: /usr/local/PPU_SDK; compiler: /usr/local/PPU_SDK/bin/hgcc
+copying build/lib.linux-x86_64-cpython-312/pla_recurrent_precomputed.cpython-312-x86_64-linux-gnu.so -> 

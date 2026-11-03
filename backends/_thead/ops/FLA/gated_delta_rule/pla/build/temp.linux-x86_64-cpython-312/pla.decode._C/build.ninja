@@ -1,0 +1,22 @@
+ninja_required_version = 1.3
+
+rule hgcc_compile
+  command = /usr/local/PPU_SDK/bin/hgcc -O3 -std=c++17 --expt-relaxed-constexpr --expt-extended-lambda --use_fast_math -lineinfo -mllvm -ppu-patch-fence-ppu=false -mllvm -wno-loop-miss-transform -mllvm -ppu-cg-to-kp1=true -mllvm -ppu-fix-uninit=true -mllvm -ppu-force-warpage=true -mllvm -sort-copy-before-coalesce=true -mllvm -ppu-eliminate-early-v2s=true -mllvm -ppu-pref-fma-reuse=true --threads 16 -arch=ppu_10 -arch=ppu_15 -Xcompiler -fPIC -U__HGGC_NO_HALF_OPERATORS__ -U__HGGC_NO_HALF_CONVERSIONS__ -U__HGGC_NO_HALF2_OPERATORS__ -U__HGGC_NO_BFLOAT16_CONVERSIONS__ -DTORCH_EXTENSION_NAME=_C -D_GLIBCXX_USE_CXX11_ABI=1 -I/workspace/pla/src -I/workspace/pla/src/decode/k-last -I/usr/local/lib/python3.12/site-packages/torch/include -I/usr/local/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -I/usr/local/include/python3.12 -I/usr/local/PPU_SDK/targets/x86_64-linux/include -I/usr/local/PPU_SDK/CUDA_SDK/targets/x86_64-linux/include -c $in -o $out
+  description = HGCC $in
+
+rule cxx_compile
+  command = c++ -O3 -std=c++17 -fPIC -DTORCH_EXTENSION_NAME=_C -D_GLIBCXX_USE_CXX11_ABI=1 -I/workspace/pla/src -I/workspace/pla/src/decode/k-last -I/usr/local/lib/python3.12/site-packages/torch/include -I/usr/local/lib/python3.12/site-packages/torch/include/torch/csrc/api/include -I/usr/local/include/python3.12 -I/usr/local/PPU_SDK/targets/x86_64-linux/include -I/usr/local/PPU_SDK/CUDA_SDK/targets/x86_64-linux/include -c $in -o $out
+  description = CXX $in
+
+build /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_sigmoid_gating_698eb589517f.o: cxx_compile /workspace/pla/src/decode/k-last/fused_sigmoid_gating.cpp
+build /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_recurrent_kda_cc03cc64e5a7.o: cxx_compile /workspace/pla/src/decode/k-last/fused_recurrent_kda.cpp
+build /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_sigmoid_gating_cuda_k_last_2b0ebbc139a8.o: cxx_compile /workspace/pla/src/decode/k-last/fused_sigmoid_gating_cuda_k_last.cpp
+build /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_sigmoid_gating_cuda_k_last_packed_e9dca57c5590.o: cxx_compile /workspace/pla/src/decode/k-last/fused_sigmoid_gating_cuda_k_last_packed.cpp
+build /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_kda_decode_kernel_ref_f835e4562fb6.o: hgcc_compile /workspace/pla/src/decode/k-last/fused_kda_decode_kernel_ref.cu
+build /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_kda_decode_ref_host_b5a7ccbeb719.o: cxx_compile /workspace/pla/src/decode/k-last/fused_kda_decode_ref_host.cpp
+build /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_kda_decode_mega_d12271a79706.o: hgcc_compile /workspace/pla/src/decode/k-last/fused_kda_decode_mega.cu
+build /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_kda_decode_mega_host_8d58af2d635c.o: cxx_compile /workspace/pla/src/decode/k-last/fused_kda_decode_mega_host.cpp
+build /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/k_last_bv64_wn8_sn4_hv1_2740eb177349.o: hgcc_compile /workspace/pla/src/decode/k-last/generated/k_last_bv64_wn8_sn4_hv1.cu
+build /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/k_last_packed_bv64_wn8_sn4_hv1_a8198b5c8f7d.o: hgcc_compile /workspace/pla/src/decode/k-last/generated/k_last_packed_bv64_wn8_sn4_hv1.cu
+
+default /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_sigmoid_gating_698eb589517f.o /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_recurrent_kda_cc03cc64e5a7.o /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_sigmoid_gating_cuda_k_last_2b0ebbc139a8.o /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_sigmoid_gating_cuda_k_last_packed_e9dca57c5590.o /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_kda_decode_kernel_ref_f835e4562fb6.o /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_kda_decode_ref_host_b5a7ccbeb719.o /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_kda_decode_mega_d12271a79706.o /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_kda_decode_mega_host_8d58af2d635c.o /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/k_last_bv64_wn8_sn4_hv1_2740eb177349.o /workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/k_last_packed_bv64_wn8_sn4_hv1_a8198b5c8f7d.o

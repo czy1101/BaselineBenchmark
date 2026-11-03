@@ -1,0 +1,31 @@
+--- a/kernel.cuh
++++ b/kernel.cuh
+@@ -131,7 +131,7 @@
+ template <typename alog_t, typename scalar_t, int WARP_NUM, int BV, int HV_PER_CTA, int STAGE_NUM, bool IS_KDA, bool USE_LOWER_BOUND, bool MTP_VERIFY, bool use_initial_state=true, typename state_t=float>
+ __global__ void fused_sigmoid_gating_delta_kernel(
+     const alog_t* __restrict__ A_log,
+-    const scalar_t* __restrict__ a,
++    const float* __restrict__ a,
+     const dt_bias_t<IS_KDA, MTP_VERIFY, scalar_t>* __restrict__ dt_bias,
+     const float softplus_beta_or_lower_bound,
+     const float softplus_threshold,
+@@ -398,16 +398,9 @@
+         #pragma unroll
+         for (int hs = 0; hs < HV_PER_CTA; ++hs) {
+             int i_hv = hv_base + hs;
+-            float b_A_log = A_log[i_hv];
+-            float b_val = static_cast<float>(b[bos * stride_b + i_hv]);
+-            #if defined(__HGGC_ARCH__)
+-                b_beta_arr[hs] = __ppu_sgmdf(b_val);
+-            #else
+-                b_beta_arr[hs] = 1.0f / (1.0f + __expf(-b_val));
+-            #endif
+-            float a_val = static_cast<float>(a[bos * stride_a + i_hv]);
+-            float dt_val = static_cast<float>(dt_bias[i_hv]);
+-            bg_arr[hs] = compute_bg<USE_LOWER_BOUND>(a_val, dt_val, b_A_log, softplus_beta_or_lower_bound, softplus_threshold);
++            // Precomputed GDN gates: same g/beta ABI as FlagAttention.
++            b_beta_arr[hs] = static_cast<float>(b[bos * stride_b + i_hv]);
++            bg_arr[hs] = __expf(a[bos * stride_a + i_hv]);
+         }
+         if constexpr (IS_KDA) {
+             #pragma unroll

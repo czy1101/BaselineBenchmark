@@ -1,0 +1,7 @@
+# ninja log v7
+13	23941	1792489519557241525	/workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_kda_decode_ref_host_b5a7ccbeb719.o	37b73a68696d4852
+17	24752	1792489519550449000	/workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_kda_decode_mega_host_8d58af2d635c.o	b570ff0bcf725cc5
+6	24929	1792489519550449000	/workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_sigmoid_gating_698eb589517f.o	f04c01ff3b69e65f
+11	25287	1792489519550449000	/workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_sigmoid_gating_cuda_k_last_packed_e9dca57c5590.o	717dd2ddfa438a58
+9	26285	1792489519551241495	/workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_recurrent_kda_cc03cc64e5a7.o	f93e29037732d185
+10	27468	1792489519550449000	/workspace/pla/build/temp.linux-x86_64-cpython-312/pla.decode._C/fused_sigmoid_gating_cuda_k_last_2b0ebbc139a8.o	7f2e9049bdf75287

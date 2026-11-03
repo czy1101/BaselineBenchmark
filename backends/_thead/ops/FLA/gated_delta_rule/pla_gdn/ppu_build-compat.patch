@@ -1,0 +1,32 @@
+--- a/ppu_build.py
++++ b/ppu_build.py
+@@ -92,6 +92,7 @@
+             Path(sysconfig.get_path("include")),
+             sdk / "include",
+             sdk / "targets" / "x86_64-linux" / "include",
++            sdk / "CUDA_SDK" / "targets" / "x86_64-linux" / "include",
+         ]
+         self._framework_includes = list(dict.fromkeys(
+             str(path.resolve()) for path in include_dirs if path.is_dir()
+@@ -148,10 +149,11 @@
+         objects = [self._object_path(output_dir, source) for source in sources]
+         includes = list(extension.include_dirs or []) + self._framework_includes
+         include_flags = [f"-I{Path(path).resolve()}" for path in dict.fromkeys(includes)]
++        hgcc_include_flags = [flag for flag in include_flags if "/CUDA_SDK/" not in flag]
+         postargs = extra_postargs or extension.extra_compile_args or {}
+         hgcc_flags = list(postargs.get("hgcc", []))
+         hgcc_flags += [
+-            "-Xcompiler=-fPIC",
++            "-Xcompiler", "-fPIC",
+             "-U__HGGC_NO_HALF_OPERATORS__",
+             "-U__HGGC_NO_HALF_CONVERSIONS__",
+             "-U__HGGC_NO_HALF2_OPERATORS__",
+@@ -168,7 +170,7 @@
+             stream.write("rule hgcc_compile\n")
+             stream.write(
+                 "  command = " + self._quote(
+-                    [self._hgcc] + hgcc_flags + base_flags + include_flags
++                    [self._hgcc] + hgcc_flags + base_flags + hgcc_include_flags
+                     + ["-c", "$in", "-o", "$out"]
+                 ).replace("'$in'", "$in").replace("'$out'", "$out") + "\n"
+             )

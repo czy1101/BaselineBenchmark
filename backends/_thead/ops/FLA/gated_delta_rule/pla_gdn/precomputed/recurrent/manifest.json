@@ -1,0 +1,52 @@
+{
+  "upstream": "t-head/pla@ace8581717b080aafdd3c9604f582d35da8e6355",
+  "configs": [
+    [
+      16,
+      4,
+      4,
+      1
+    ],
+    [
+      32,
+      8,
+      4,
+      1
+    ],
+    [
+      32,
+      4,
+      4,
+      1
+    ],
+    [
+      64,
+      4,
+      4,
+      1
+    ],
+    [
+      128,
+      4,
+      4,
+      1
+    ],
+    [
+      64,
+      8,
+      4,
+      1
+    ]
+  ],
+  "state": "float32",
+  "activations": [
+    "float16",
+    "bfloat16"
+  ],
+  "maximum_tokens": 8,
+  "gate_scope": "precomputed g/beta; exp(g) retained",
+  "modifications": [
+    "precomputed GDN gates in decode and MTP",
+    "FP32 state launcher"
+  ]
+}

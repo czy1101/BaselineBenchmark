@@ -1,0 +1,33 @@
+--- existing-precomputed/kernel.cuh
++++ recurrent/kernel.cuh
+@@ -38,7 +38,7 @@
+ #include <stdexcept>
+ #include <type_traits>
+ 
+-#include "../../pla_device_helpers.cuh"
++#include "pla_device_helpers.cuh"
+ #include "k_last_shared_layout.h"
+ 
+ // Fast-decode (T=1) pipeline structure:
+@@ -651,16 +651,11 @@
+                     int i_hv = hv_base + hv_step;
+                     if constexpr (!IS_KDA) {
+                         if (lane_id == 0) {
+-                            float b_A_log = A_log[i_hv];
+-                            float b_val = static_cast<float>(b[tt_idx * stride_b + i_hv]);
+-                            #if defined(__HGGC_ARCH__)
+-                                smem_beta_mtp[tt * HV_PER_CTA + hv_step] = __ppu_sgmdf(b_val);
+-                            #else
+-                                smem_beta_mtp[tt * HV_PER_CTA + hv_step] = 1.0f / (1.0f + __expf(-b_val));
+-                            #endif
+-                            float a_val = static_cast<float>(a[tt_idx * stride_a + i_hv]);
+-                            float dt_val = static_cast<float>(dt_bias[i_hv]);
+-                            smem_bg_mtp[tt * HV_PER_CTA + hv_step] = compute_bg<USE_LOWER_BOUND>(a_val, dt_val, b_A_log, softplus_beta_or_lower_bound, softplus_threshold);
++                            // Precomputed GDN gates, matching ordinary recurrent.
++                            smem_beta_mtp[tt * HV_PER_CTA + hv_step] =
++                                static_cast<float>(b[tt_idx * stride_b + i_hv]);
++                            smem_bg_mtp[tt * HV_PER_CTA + hv_step] =
++                                __expf(a[tt_idx * stride_a + i_hv]);
+                         }
+                     } else {
+                         float b_A_log = A_log[i_hv];

@@ -1,0 +1,114 @@
+# Copyright (c) 2022-2026, T-HEAD (SHANGHAI) SEMICONDUCTOR CO., LTD. All rights reserved. 
+# Copyright (c) 2017 - 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: BSD-3-Clause
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+set(CUTLASS_EXAMPLES_COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/common)
+
+add_custom_target(cutlass_examples)
+add_custom_target(test_examples)
+
+function(cutlass_example_add_executable NAME)
+
+  set(options)
+  set(oneValueArgs DISABLE_TESTS)
+  set(multiValueArgs DEPENDS DEPENDEES TEST_COMMAND_OPTIONS)
+  cmake_parse_arguments(_ "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  if (NOT DEFINED __DISABLE_TESTS)
+    set(__DISABLE_TESTS OFF)
+  endif()
+
+  cutlass_add_executable(${NAME} ${__UNPARSED_ARGUMENTS})
+
+  add_dependencies(cutlass_examples ${NAME})
+
+  target_link_libraries(
+    ${NAME}
+    PRIVATE
+    CUTLASS
+    cutlass_tools_util_includes
+    ppu::driver
+    )
+
+  target_include_directories(
+    ${NAME}
+    PRIVATE
+    ${CUTLASS_EXAMPLES_COMMON_SOURCE_DIR}
+    ${CUTLASS_EXAMPLES_UTILS_DIR}
+    )
+
+  install(
+    TARGETS ${NAME}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+
+  cutlass_add_executable_tests(
+    test_examples_${NAME} ${NAME}
+    DEPENDS ${__DEPENDS}
+    DEPENDEES test_examples ${__DEPENDEES}
+    TEST_COMMAND_OPTIONS ${__TEST_COMMAND_OPTIONS}
+    DISABLE_EXECUTABLE_INSTALL_RULE
+    DISABLE_TESTS ${__DISABLE_TESTS}
+    )
+
+endfunction()
+
+
+foreach(EXAMPLE
+  cute
+  00_basic_gemm
+  01_cutlass_utilities
+  02_tile_iterator
+  03_batched_gemm
+  04_simt_canonical
+  05_quaternion_gemm
+  06_quaternion_conv
+  07_depthwise_simt_conv2dfprop
+  08_ppu_basic_tensor_op_gemm
+  09_ppu_gemm_with_collective_builder
+  10_ppu_ptr_array_batched_gemm
+  11_ppu_grouped_gemm
+  12_ppu_gemm_with_schedule
+  13_ppu_gemm_with_schedule_multistream
+  14_ppu_int8_gemm_with_blockwise_quant
+
+  # ppu1.0
+  15_ppu_cute_gemm
+  16_ppu_mixed_dtype_gemm
+  # ppu1.5
+  100_ppu0015_fp8_gemm
+  101_ppu0015_fp4_gemm
+  102_ppu0015_gemm_evt
+  103_ppu0015_gemm_array
+  104_ppu0015_fp8_gemm_with_blockwise_quant
+  )
+
+    add_subdirectory(${EXAMPLE})
+
+endforeach()
+
